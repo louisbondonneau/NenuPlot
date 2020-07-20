@@ -6,9 +6,9 @@ python NenuPlot.py -flat_cleaner -metadata_out -iterative -arout  /MyPATH_to_arc
               input:
                     path to archive data files
               output:
-                    archive.metadata  metadata ASCII file
-                    archive.ar.clear  cleaned archive
-                    archive.pdf       quicklook in pdf
+                    archive.metadata      metadata ASCII file
+                    archive.ar.clear      cleaned archive
+                    archive.pdf           quicklook in pdf
 
 
               optional arguments:
