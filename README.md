@@ -1,5 +1,8 @@
 
 python NenuPlot.py '/MyPATH_to_archive/archive.ar' -flat_cleaner -metadata_out -iterative -arout
+
+
+
               input:
                     path to archive data files
               output:
