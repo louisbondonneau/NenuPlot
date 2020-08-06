@@ -357,19 +357,16 @@ def auto_find_on_window(data, safe_fraction = 1/8.):
     aprof = (data - amean)/arms
     abins = np.arange(0,nbins)[(aprof>2.5)]
     abins = trim_bins(abins) # trimming bins
-    # updating pulse window
-    try:
-        exclsize=abins[-1]-abins[0]
-        le = abins[0]
-        re = abins[-1]
-    except:
-        print('fail searching for onpulse (signal too low < 2.5) will use the max bin')
-        le = maxbin-1
-        re = maxbin+1
+    # updating pulse windo
     # to be extra-cautious, ONpulse have to be largeur than 15% of the pulse window
     # to be extra-cautious, OFFpulse have to be largeur than 15% of the pulse window
-    le = le%nbins
-    re = re%nbins
+    try:
+        dabins = (abins - np.roll(abins, 1))%nbins
+        le = abins[np.argmax(dabins)]%nbins
+        re = abins[np.argmax(dabins)-1]%nbins
+    except:
+        le = maxbin-1
+        re = maxbin+1
 
     
     if(nbins*safe_fraction < 5):
@@ -378,7 +375,7 @@ def auto_find_on_window(data, safe_fraction = 1/8.):
             safe_fraction = 1/2.
 
     if(le < re):
-        onpulse = (re - le)/nbins
+        onpulse = (re - le)/float(nbins)
         offpulse = 1 - onpulse
         if(onpulse < safe_fraction):
             extrabin = ((safe_fraction - onpulse)/2.)*nbins
@@ -389,7 +386,7 @@ def auto_find_on_window(data, safe_fraction = 1/8.):
             re = re - int(extrabin)
             le = le + int(extrabin)
     else: #(le > re)
-        onpulse = (nbins-(le - re))/nbins
+        onpulse = (nbins-(le - re))/float(nbins)
         offpulse = 1 - onpulse
         if(onpulse < safe_fraction):
             extrabin = ((safe_fraction - onpulse)/2.)*nbins

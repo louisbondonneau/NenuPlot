@@ -133,21 +133,6 @@ def load_some_chan_in_archive_data(path, WORKDIR='NULL', initmetadata=False,
     print("file(s) used: %s" %(files))
     archives = [psr.Archive_load(path+files[0])]
 
-    # select le band from minfreq to maxfreq
-    min_freq = archives[0].get_Profile(0, 0, 0).get_centre_frequency()
-    max_freq = archives[0].get_Profile(0, 0, archives[0].get_nchan()-1).get_centre_frequency()
-    freqs = np.linspace(min_freq, max_freq, archives[0].get_nchan())
-
-    if(np.min(freqs) < minfreq):
-        minchan = (np.argmax(freqs[np.where(freqs < minfreq)])+1)
-    else:
-        minchan = 0
-
-    if(np.max(freqs) > maxfreq):
-        maxchan = (np.argmax(freqs[np.where(freqs < maxfreq)]))
-    else:
-        maxchan = archives[0].get_nchan()-1
-
     if not(WORKDIR == 'NULL'):
         orig_stdout = sys.stdout
         printfile = open(WORKDIR+'9_processed_files.txt', 'w')
@@ -160,14 +145,33 @@ def load_some_chan_in_archive_data(path, WORKDIR='NULL', initmetadata=False,
     for i in range(len(files)):
         archives = psr.Archive_load(path + files[i])
         buffarchive = archives.clone()
+
+        freqs = np.zeros(archives.get_nchan())
+        for ichan in range(archives.get_nchan()):
+            freqs[ichan] = archives.get_Profile(0, 0, ichan).get_centre_frequency()
+
+        if(np.min(freqs) < minfreq):
+            minchan = (np.argmax(freqs[np.where(freqs < minfreq)])+1)
+        else:
+            minchan = 0
+
+        if(np.max(freqs) > maxfreq):
+            maxchan = (np.argmax(freqs[np.where(freqs < maxfreq)]))
+        else:
+            maxchan = archives.get_nchan()-1
+
         if (initmetadata):
             initTFB = [archives.get_nsubint(), archives.get_nchan(), archives.get_nbin()]
         else:
             initTFB = [0, 0, 0]
-        if (minchan > 0):
-            buffarchive.remove_chan(0, minchan)
         if (maxchan < buffarchive.get_nchan()-1):
-            buffarchive.remove_chan(maxchan, buffarchive.get_nchan()-1)
+            buffarchive.remove_chan(maxchan+1, buffarchive.get_nchan()-1)
+        if (minchan > 0):
+            buffarchive.remove_chan(0, minchan-1)
+        if (pscrunch):
+            buffarchive.pscrunch()
+        if(buffarchive.get_npol() == 1):
+            nodefaraday = True
         if not (dm==0.0):
             buffarchive.set_dispersion_measure(float(dm))
             if not (nodefaraday): buffarchive.dedisperse()
@@ -179,8 +183,6 @@ def load_some_chan_in_archive_data(path, WORKDIR='NULL', initmetadata=False,
         else:
             if not (buffarchive.get_rotation_measure() == 0.0) and (buffarchive.get_npol() > 1):
                 if not (nodefaraday): buffarchive.defaraday()
-        if (pscrunch):
-            buffarchive.pscrunch()
         if (tscrunch > 1):
             buffarchive.tscrunch(tscrunch)
         if (bscrunch > 1):
@@ -189,7 +191,24 @@ def load_some_chan_in_archive_data(path, WORKDIR='NULL', initmetadata=False,
             buffarchive.bscrunch(bscrunch)
         if (fscrunch > 1):
             buffarchive.fscrunch(fscrunch)
-        if not (i == 0):
+        if (i == 0):
+            newarchive = buffarchive.clone()
+            string = ''
+            if (minchan > 0):
+                string = string + ("minfreq = %.8f " % freqs[minchan])
+            if (maxchan < buffarchive.get_nchan()-1):
+               string = string + ("maxfreq = %.8f " % freqs[maxchan])
+            if (pscrunch):
+                string = string + ("pscrunch = True ")
+            if (bscrunch > 1):
+                string = string + ("bscrunch = %d " % bscrunch)
+            if (tscrunch > 1):
+                string = string + ("tscrunch = %d " % tscrunch)
+            if (fscrunch > 1):
+                string = string + ("fscrunch = %d " % fscrunch)
+            if not string == '':
+                print(string)
+        else:
             if (freqappend):
                 freqappend = psr.FrequencyAppend()
                 patch = psr.PatchTime()
@@ -206,24 +225,7 @@ def load_some_chan_in_archive_data(path, WORKDIR='NULL', initmetadata=False,
                 polycos = newarchive.get_model()
                 buffarchive.set_model(polycos)
                 newarchive.append(buffarchive)
-        else:
-            newarchive = buffarchive.clone()
-            string = ''
-            if (minchan > 0):
-                string = string + ("minchan = %d " % minchan)
-            if (maxchan < buffarchive.get_nchan()-1):
-               string = string + ("maxchan = %d " % maxchan)
-            if (pscrunch):
-                string = string + ("pscrunch = True ")
-            if (bscrunch > 1):
-                string = string + ("bscrunch = %d " % bscrunch)
-            if (tscrunch > 1):
-                string = string + ("tscrunch = %d " % tscrunch)
-            if (fscrunch > 1):
-                string = string + ("fscrunch = %d " % fscrunch)
-            if not string == '':
-                print(string)
-        
+
         if verbose:
             print path + files[i]
 
@@ -737,17 +739,14 @@ def auto_find_on_window_from_ar(ar, safe_fraction = 1/8.):
     abins = trim_bins(abins) # trimming bins
     # updating pulse window
     try:
-        exclsize=abins[-1]-abins[0]
-        le = abins[0]
-        re = abins[-1]
+        dabins = (abins - np.roll(abins, 1))%nbins
+        le = abins[np.argmax(dabins)]%nbins
+        re = abins[np.argmax(dabins)-1]%nbins
     except:
-        print('fail searching for onpulse (signal too low < 2.5) will use the max bin')
         le = maxbin-1
         re = maxbin+1
     # to be extra-cautious, ONpulse have to be largeur than 15% of the pulse window
     # to be extra-cautious, OFFpulse have to be largeur than 15% of the pulse window
-    le = le%nbins
-    re = re%nbins
 
     # 4 bin it is not enouth to calculate statistic
     if(nbins*safe_fraction < 5):
@@ -814,9 +813,9 @@ def make_html_code(html_body):
 def reduce_pdf(pdf_path, pdf_name, dpi=400):
     """Function to reduce the size of a pdf using Ghostscript
     """
-    commande = 'gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -r'+str(int(dpi))+' -dNOPAUSE -dQUIET -dBATCH -sOutputFile='+pdf_path+'TMPfile.tmp '+pdf_path+pdf_name
+    commande = 'gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -r'+str(int(dpi))+' -dNOPAUSE -dQUIET -dBATCH -sOutputFile='+pdf_path+pdf_name+'TMPfile.tmp '+pdf_path+pdf_name
     output = check_output(commande, shell=True)
-    commande = 'mv '+pdf_path+'TMPfile.tmp '+pdf_path+pdf_name
+    commande = 'mv '+pdf_path+pdf_name+'TMPfile.tmp '+pdf_path+pdf_name
     output = check_output(commande, shell=True)
 
 

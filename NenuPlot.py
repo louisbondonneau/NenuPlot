@@ -28,6 +28,12 @@ python /path_to_code/MeerPlot.py '/path_to_file/'
 2020/05/31   iterative_cleaner: bad_subint and bad_chan are now in option
 2020/07/09   quicklookutil: add a try to use iers.conf (do not exist in old version of astropy)
 2020/07/09   plotfunction: fix (bad normalisation in QUV when used timenorme and timenpolar options )
+2020/08/05   quicklookutil: fix bug in load_some_chan_in_archive_data if the option -minchan was used with -freqappend
+2020/08/05   quicklookutil: fix bu in the pdf reduction when multiple simulttaneous instance of the code in tthe same directory
+2020/08/06   iterative_cleaner_light: fix in function auto_find_on_window (when the puls is on the  border)
+2020/08/06   quicklookutil: same bug in auto_find_on_window_from_ar
+2020/08/06   quicklookutil: if npol==1 nodefaraday is set to True
+
 """
 
 
