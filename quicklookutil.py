@@ -161,9 +161,9 @@ def load_some_chan_in_archive_data(path, WORKDIR='NULL', initmetadata=False,
             maxchan = archives.get_nchan()-1
 
         if (initmetadata):
-            initTFB = [archives.get_nsubint(), archives.get_nchan(), archives.get_nbin()]
+            initTFB = [float(archives.get_nsubint()), float(archives.get_nchan()), float(archives.get_nbin()), float(archives.get_dispersion_measure())]
         else:
-            initTFB = [0, 0, 0]
+            initTFB = [float(0), float(0), float(0), float(archives.get_dispersion_measure())]
         if (maxchan < buffarchive.get_nchan()-1):
             buffarchive.remove_chan(maxchan+1, buffarchive.get_nchan()-1)
         if (minchan > 0):
@@ -188,7 +188,7 @@ def load_some_chan_in_archive_data(path, WORKDIR='NULL', initmetadata=False,
         if (bscrunch > 1):
             if(buffarchive.get_nbin()/bscrunch < 8):
                 bscrunch = buffarchive.get_nbin()/8
-            buffarchive.bscrunch(bscrunch)
+            if (bscrunch > 1):buffarchive.bscrunch(bscrunch)
         if (fscrunch > 1):
             buffarchive.fscrunch(fscrunch)
         if (i == 0):
@@ -294,7 +294,7 @@ def bandpass_filter(ar, minfreq=0, maxfreq=2**24):
                     prof.set_weight(0.0)
     return ar
 
-def print_metadata(archive, WORKDIR='NOWORKDIR', arpath='/tmp/', initTFB=[0, 0, 0], initmetadata=False):
+def print_metadata(archive, WORKDIR='NOWORKDIR', arpath='/tmp/', initTFB=[0, 0, 0, 0], initmetadata=False, version=' unknow '):
     """Function to print archive file metadata in a single string.
 
     Input:
@@ -338,11 +338,12 @@ nb antenna   number of antennae                    %s""" % (UTC_START,
         nbin = archive.get_nbin()
         nchan = archive.get_nchan()
         nsubint = archive.get_nsubint()
-        
+        dm = float(initTFB[3])
     else:
-        nsubint = initTFB[0]
-        nchan = initTFB[1]
-        nbin = initTFB[2]
+        nsubint = int(initTFB[0])
+        nchan = int(initTFB[1])
+        nbin = int(initTFB[2])
+        dm = float(initTFB[3])
         if (archive.get_nsubint() > initTFB[0]):
             nsubint = archive.get_nsubint()
         if (archive.get_nchan() > initTFB[1]):
@@ -355,7 +356,7 @@ nb antenna   number of antennae                    %s""" % (UTC_START,
     dec = archive.get_coordinates().dec().getDMS()
     centre_frequency = archive.get_centre_frequency()
     bandwidth = archive.get_bandwidth()
-    dm = archive.get_dispersion_measure()
+    new_dm = archive.get_dispersion_measure()
     rm = archive.get_rotation_measure()
     is_dedispersed = archive.get_dedispersed()
     is_faraday_rotated = archive.get_faraday_corrected()
@@ -399,7 +400,8 @@ nb antenna   number of antennae                    %s""" % (UTC_START,
     HEADER = ("""==============================================================
 Attribute    Description                           Value
 ==============================================================""")
-    OUTPUT = OUTPUT+'\n'+("""name         Source name                           %s
+    OUTPUT = OUTPUT+'\n'+("""quicklook    V%s
+name         Source name                           %s
 Start        %s
 nbin         Number of pulse phase bins            %s
 nchan        Number of frequency channels          %s
@@ -407,6 +409,7 @@ npol         Number of polarizations               %s
 nsubint      Number of sub-integrations            %s
 length       Observation duration (s)              %s
 dm           Dispersion measure (pc/cm^3)          %s
+new dm       refined Dispersion measure (pc/cm^3)  %.4f
 rm           Rotation measure (rad/m^2)            %s
 period topo  Folding_period (s)                    %s
 type         Observation type                      %s
@@ -418,18 +421,17 @@ bw           Bandwidth (MHz)                       %s
 dmc          Dispersion corrected                  %s
 rmc          Faraday Rotation corrected            %s
 polc         Polarization calibrated               %s
-scale        Data units                            %s
 stat         Data state                            %s
 rcvr:name    Receiver name                         %s
-rcvr:basis   Basis of receptors                    %s
 be:name      Name of the backend instrument        %s
 MJDstart     MJD of the first subintegration       %s
 SNR(psrstat) Signal noise ratio                    %.1f
-SNR(range)   Signal noise ratio with vlad script   %.1f
+SNR(range)   Signal noise ratio with snr.py        %.1f
 RFI          Radio Frequency Interferency (/100)   %.2f
 %s
 elevStart    Elevation of the first subintegration %.2f
-elevEnd      Elevation of the last subintegration  %.2f""" % (source_name,
+elevEnd      Elevation of the last subintegration  %.2f""" % (version,
+                                                            source_name,
                                                             str(julianDAY),
                                                             nbin,
                                                             nchan,
@@ -437,6 +439,7 @@ elevEnd      Elevation of the last subintegration  %.2f""" % (source_name,
                                                             nsubint,
                                                             obs_duration,
                                                             dm,
+                                                            new_dm,
                                                             rm,
                                                             source_folding_period,
                                                             obs_type,
@@ -448,10 +451,8 @@ elevEnd      Elevation of the last subintegration  %.2f""" % (source_name,
                                                             is_dedispersed,
                                                             is_faraday_rotated,
                                                             is_pol_calib,
-                                                            data_units,
                                                             data_state,
                                                             receiver_name,
-                                                            receptor_basis,
                                                             backend_name,
                                                             MJDstart,
                                                             SNR,

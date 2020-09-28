@@ -1,4 +1,5 @@
 import sys, os
+from sys import argv
 import socket
 HOSTNAME=socket.gethostname()
 if (HOSTNAME=='undysputedbk1') or (HOSTNAME=='undysputedbk2'):
@@ -10,6 +11,7 @@ import quicklookutil
 import argparse
 import mysendmail
 import uploadto
+import DM_fit_lib
 
 """
 This code provide a quicklook in pdf/png and many option:
@@ -33,9 +35,14 @@ python /path_to_code/MeerPlot.py '/path_to_file/'
 2020/08/06   iterative_cleaner_light: fix in function auto_find_on_window (when the puls is on the  border)
 2020/08/06   quicklookutil: same bug in auto_find_on_window_from_ar
 2020/08/06   quicklookutil: if npol==1 nodefaraday is set to True
-
+2020/09/20   NenuPlot: new option -fit_DM
+2020/09/25   quicklookutil: add dm new in metadata 
+2020/09/25   quicklookutil: add version number un metadata
+2020/09/25   quicklookutil: add Nenuplot.py commande line in metadata
+2020/09/25   NenuPlot: revers option nodefaraday to defaraday (nodefaraday by default)
 """
 
+version = '01.00.00' # 8 characters
 
 parser = argparse.ArgumentParser(description="This code will.")
 parser.add_argument('-u', dest='path',
@@ -64,6 +71,8 @@ parser.add_argument('-ta', dest='tscrunch_after', default=1,
 parser.add_argument('-fa', dest='fscrunch_after', default=1,
                     help="frequency scrunch factor (after CoastGuard)")
 
+parser.add_argument('-fit_DM', dest='fit_DM', action='store_true', default=False,
+                    help="will fit for a new DM value (at your own risk)")
 parser.add_argument('-v', dest='verbose', action='store_true', default=False,
                     help="Verbose mode")
 parser.add_argument('-mail', dest='sendmail',
@@ -107,7 +116,7 @@ parser.add_argument('-bad_subint', dest='bad_subint', default=0.9,
 parser.add_argument('-bad_chan', dest='bad_chan', default=0.5,
                     help="bad_chan for CoastGuard (default is 0.5 a channel is removed if masked part > 50 percent)")
 
-
+#plot option
 parser.add_argument('-timepolar', dest='timepolar', action='store_true', default=False,
                     help="plot phase time polar")
 parser.add_argument('-timenorme', dest='timenorme', action='store_true', default=False,
@@ -116,8 +125,8 @@ parser.add_argument('-threshold', dest='threshold',
                     help="threshold on the ampl in dyn spect and phase/freq")
 parser.add_argument('-rm', dest='rm', default=0.0,
                     help="defaraday with a new rm in rad.m-2")
-parser.add_argument('-nodefaraday', dest='nodefaraday', action='store_true', default=False,
-                    help="do not defaraday the signal (signal is defaraday by default)")
+parser.add_argument('-defaraday', dest='defaraday', action='store_true', default=False,
+                    help="defaraday the signal (signal is not defaraday by default)")
 parser.add_argument('-dm', dest='dm', default=0.0,
                     help="dedisperse with a new dm in pc.cm-3")
 parser.add_argument('-noflat', dest='noflat', action='store_true', default=False,
@@ -197,7 +206,7 @@ ar, filename, initTFB = quicklookutil.load_some_chan_in_archive_data(ar_name,
                                                             rm=float(args.rm),
                                                             freqappend=args.freqappend,
                                                             singlepulses_patch=args.singlepulses_patch,
-                                                            nodefaraday=args.nodefaraday)
+                                                            nodefaraday=( not args.defaraday))
 
 if not (args.path):
     args.path = './'
@@ -228,6 +237,9 @@ ar = quicklookutil.bandpass_filter(ar, minfreq=float(args.minf), maxfreq=float(a
 if (args.mask) and not (args.noclean):
     quicklookutil.apply_mask(ar, args.mask)
 
+if (ar.get_nchan() >= 10) and (args.fit_DM):
+    ar, new_dm, dm_err = DM_fit_lib.DM_fit(ar, verbose=False, ncore=8)
+
 if (args.bscrunch_after > 1):
     if(ar.get_nbin()/int(args.bscrunch_after) < 8):
         args.bscrunch_after = int(ar.get_nbin()/8)
@@ -240,7 +252,7 @@ if (args.fscrunch_after > 1):
 if (args.arout):
     ar.update_centre_frequency()
     ar.dededisperse()
-    if (ar.get_npol() > 1) and not (args.nodefaraday): ar.defaraday()
+    if (ar.get_npol() > 1) and (args.defaraday): ar.defaraday()
     if not (args.noclean):
         ar.unload(args.path+'/'+args.name+'.ar.clear')
     else:
@@ -250,11 +262,8 @@ ar.centre_max_bin()
 # ----------------HEADER in ax0------------------------------
 ax0 = plt.subplot2grid((5, 5), (0, 2), colspan=3, rowspan=2, frameon=False)
 
-metadata = quicklookutil.print_metadata(ar, initTFB=initTFB, initmetadata=args.initmetadata)
+metadata = quicklookutil.print_metadata(ar, initTFB=initTFB, initmetadata=args.initmetadata, version=version)
 
-if(args.metadata_out):
-    with open(args.path+'/'+args.name+'.metadata', "w") as text_file:
-        text_file.write("%s" % metadata)
     
 
 ax0.text(0, 1, metadata,
@@ -355,16 +364,26 @@ plt.draw()
 plt.savefig(args.path+'/'+args.name+'.'+form, dpi=int(args.dpi), format=form)
 if (form=='pdf') and (args.small_pdf):
     quicklookutil.reduce_pdf(args.path+'/', args.name+'.'+form, dpi=int(args.dpi))
-    
+
+metadata =  metadata+'\n'+'----------------------------------------------------'
 if (args.sendmail):
-    metadata =  metadata+'\n'+'----------------------------------------------------'
     for file in ar_name:
         metadata =  metadata+'\n'+file
+
+metadata = metadata+'\n'+'python2.7 '+" ".join(argv)
+if not (args.arout): metadata = metadata+' -arout'
+
+if (args.sendmail):
     #mysendmail.sendMail(['aa@bb.com', 'bb@ff.com'], "New observation "+args.name, metadata, [args.path+args.name+'.pdf'])
     str_mail = "New observation "+str(ar.get_source())
     if (args.mailtitle):
         str_mail = str_mail+' '+args.mailtitle
     mysendmail.sendMail_sub(args.sendmail, str_mail, metadata, [args.path+args.name+'.'+form])
+
+
+if(args.metadata_out):
+    with open(args.path+'/'+args.name+'.metadata', "w") as text_file:
+        text_file.write("%s" % metadata)
 
 if (args.uploadpdf):
     if (HOSTNAME=='undysputedbk1') or (HOSTNAME=='undysputedbk2')  or (HOSTNAME=='nancep3'):

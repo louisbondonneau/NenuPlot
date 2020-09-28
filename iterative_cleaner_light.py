@@ -369,7 +369,7 @@ def auto_find_on_window(data, safe_fraction = 1/8.):
         re = maxbin+1
 
     
-    if(nbins*safe_fraction < 5):
+    if(nbins*safe_fraction < 5) and (safe_fraction <= 1/4):
         safe_fraction = 1/4.
         if(nbins*safe_fraction < 5):
             safe_fraction = 1/2.

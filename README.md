@@ -27,6 +27,7 @@ python NenuPlot.py -flat_cleaner -metadata_out -iterative -arout  /MyPATH_to_arc
                     -ba BSCRUNCH_AFTER    bin scrunch factor (after CoastGuard)
                     -ta TSCRUNCH_AFTER    time scrunch factor (after CoastGuard)
                     -fa FSCRUNCH_AFTER    frequency scrunch factor (after CoastGuard)
+                    -fit_DM               will fit for a new DM value (at your own risk)
                     -v                    Verbose mode
                     -mail SENDMAIL        send the metadata and file by mail -mail [aaa@bbb.zz,
                                           bbb@bbb.zz]
@@ -59,7 +60,7 @@ python NenuPlot.py -flat_cleaner -metadata_out -iterative -arout  /MyPATH_to_arc
                     -timenorme            normilized in time the phase/time plot
                     -threshold THRESHOLD  threshold on the ampl in dyn spect and phase/freq
                     -rm RM                defaraday with a new rm in rad.m-2
-                    -nodefaraday          do not defaraday the signal (signal is defaraday by
+                    -defaraday            defaraday the signal (signal is not defaraday by
                                           default)
                     -dm DM                dedisperse with a new dm in pc.cm-3
                     -noflat               Do not flat the bandpass for plots
