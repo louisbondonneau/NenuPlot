@@ -25,7 +25,7 @@ this code is a ploting library for pulsar archive data
 """
 
 
-def profil(ar, AX):
+def profil(ar, AX, stokes=True):
     """
     plot the profil I L V in the requested area AX
     """
@@ -36,7 +36,7 @@ def profil(ar, AX):
     arx.remove_baseline()
     phase = np.linspace(0, 1, arx.get_nbin())
     if arx.get_npol() > 1:
-        arx.convert_state('Stokes')
+        if (stokes): arx.convert_state('Stokes')
         data = arx.get_data()
         data = data.squeeze()
         AX.plot(phase, data[0, :],
@@ -236,10 +236,17 @@ def phase_time(ar, AX, pol=0, leftaxis=False, stokes=True, timenorme=False, thre
     arx.dedisperse()
     arx.remove_baseline()
     arx.fscrunch()
-    if arx.get_npol() > 1:
-        if(stokes): arx.convert_state('Stokes')
+    #print('icci')
+    if(arx.get_npol() > 1):
+        #print('icci')
+        if(stokes):
+            #print(arx.get_state())
+            arx.convert_state('Stokes')
     # arx.pscrunch()
+
+    #print('icci')
     tsubint = arx.integration_length() / arx.get_nsubint()
+    #print('icci')
 
     # weights
     weights = arx.get_weights()

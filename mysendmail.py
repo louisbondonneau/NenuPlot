@@ -1,56 +1,15 @@
 import smtplib
-from email.MIMEMultipart import MIMEMultipart
-from email.MIMEBase import MIMEBase
-from email.MIMEImage import MIMEImage
-from email.MIMEText import MIMEText
-from email.Utils import COMMASPACE, formatdate
-from email import Encoders
 import os
 import subprocess
 import sys
-
-def sendMail(to, subject, text, files=[],server="smtp.gmail.com"):
-    assert type(to)==list
-    assert type(files)==list
-    fro = "undysputed.mailbox@gmail.com"
-    msg = MIMEMultipart()
-    msg['From'] = fro
-    msg['To'] = COMMASPACE.join(to)
-    msg['Date'] = formatdate(localtime=True)
-    msg['Subject'] = subject
-
-    msg.attach( MIMEText(text) )
-
-    for file in files:
-        if '.png' in file:
-            part = MIMEImage(file,_subtype="png")
-            part.set_payload( open(file,"rb").read() )
-            Encoders.encode_base64(part)
-	    part.add_header('Content-Disposition', 'attachment;filename="%s"' % os.path.basename(file))
-
-	else:
-            part = MIMEBase('application', "octet-stream")
-            part.set_payload( open(file,"rb").read() )
-            Encoders.encode_base64(part)
-            part.add_header('Content-Disposition', 'attachment;filename="%s"' % os.path.basename(file))
-        msg.attach(part)
-
-    if 'cnrs-orleans' in server: 
-        smtp = smtplib.SMTP(server, 25)
-    if 'smtp.gmail.com' in server: 
-        print("smtplib.SMTP")
-        smtp = smtplib.SMTP(server, 587)
-        smtp.ehlo()
-        smtp.starttls()
-        smtp.ehlo()
-        smtp.login("undysputed.mailbox", "nenufarpulsar")
-    #smtp.set_debuglevel(1)
-    print("smtp.sendmail")
-    smtp.sendmail(fro, to, msg.as_string() )
-    print("smtp.close")
-    smtp.close()
-
-
+#from email.MIMEMultipart import MIMEMultipart
+#from email.MIMEText import MIMEText
+#from email.MIMEBase import MIMEBase
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.base import MIMEBase
+from email import encoders
+import socket
 
 def sendMail_sub(to, subject, text, files=[]):
     attach = ' -a %s' % files[0]
@@ -62,11 +21,30 @@ def sendMail_sub(to, subject, text, files=[]):
     #print("\n"+cmd+"\n")
     p=subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
     output, errors = p.communicate()
-    print errors,output
-    
-    
-    
-    
+    print(errors,output)
+
+def attach_file(msg, nom_fichier):
+    piece = open(nom_fichier, "rb")
+    part = MIMEBase('application', 'octet-stream')
+    part.set_payload((piece).read())
+    encoders.encode_base64(part)
+    part.add_header('Content-Disposition', "piece; filename= %s" % os.path.basename(nom_fichier))
+    msg.attach(part)
+
+def sendMail(to, subject, text, files=[]):
+    msg = MIMEMultipart()
+    msg['From'] = socket.gethostname()+'@obs-nancay.fr'
+    msg['To'] = str(to).strip('[').strip(']')
+    msg['Subject'] = subject
+    msg.attach(MIMEText(text))
+    if (len(files) > 0):
+    	for ifile in range(len(files)):
+            attach_file(msg, files[ifile])
+            print(files[ifile])
+    mailserver = smtplib.SMTP('localhost')
+    #mailserver.set_debuglevel(1)
+    mailserver.sendmail( msg['From'], msg['To'].split(','), msg.as_string())
+    mailserver.quit()
 
 #if __name__ == '__main__':
-#    sendMail(["louis.bondonneau@cnrs-orleans.fr"], "hello","cheers", [''])
+#    sendMail("[adresse1@cnrs-orleans.fr,adresse2@gmail.com]", "hello","cheers", ['/home/moi/test1.txt','/home/moi/test2.txt'])

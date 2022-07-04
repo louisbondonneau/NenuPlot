@@ -6,7 +6,7 @@
 
 import psrchive as psr
 import numpy as np
-import argparse, os
+import os
 import sys
 from multiprocessing import Pool, TimeoutError
 import time
@@ -102,15 +102,19 @@ def freq_vector(ar, coh_rm):
     freqs_extended_test = np.mean(np.reshape(freqs_extended,(len(freqs), rechan_factor)), axis=1)
     return freqs, centerfreq, freqs_extended, max_freq
 
-def auto_find_on_window(ar, safe_fraction = 1/8.):
+def auto_find_on_window(ar, safe_fraction = 1/8., archive=True):
     # find first the bin with maximum value
-    ar2 = ar.clone()
-    ar2.tscrunch()
-    ar2.fscrunch()
-    ar2.pscrunch()
-    data = 1000.*ar2.get_Profile(0, 0, 0).get_amps()
+    if (archive):
+        ar2 = ar.clone()
+        ar2.tscrunch()
+        ar2.fscrunch()
+        ar2.pscrunch()
+        data = 1000.*ar2.get_Profile(0, 0, 0).get_amps()
+        nbins = ar2.get_nbin()
+    else:
+        data = ar
+        nbins = np.size(data)
     maxbin = np.argmax(data)
-    nbins = ar2.get_nbin()
     # exclude the area of 60% of all bins around the maxbin
     # make the 60%-area the even number
     exclsize=int(nbins*0.6)+int(nbins*0.6)%2
@@ -209,21 +213,25 @@ def trim_bins(x):
     x_diffs=[x[ii]-x[ii-1] for ii in xrange(1, len(x))]
     return x
 
+
 def mad(data, axis=0):
     return np.nanmedian( np.abs(data - np.nanmedian(data, axis=axis)) , axis=axis)
 
 def auto_snr(data, off_left, off_right):
     off_data = data[off_left:off_right]
+    #plt.plot(data)
+    #plt.show()
     range_mean = np.nanmedian(off_data)
     range_rms = 1.5*mad(off_data)
     if(range_rms == 0):
-        print('ERROR401 This is the Muphy law')
+        print('ERROR401 This is the Murphy law')
+        print(off_left,off_right)
         print(off_data)
         print(np.nanmedian(off_data))
         print(np.abs(off_data - np.nanmedian(off_data)))
         exit(0)
     if(np.isnan(range_rms)):
-        print('ERROR402 This is the Muphy law')
+        print('ERROR402 This is the Murphy law')
         print(off_left, off_right)
         print(off_data)
         print(np.nanmedian(off_data))
@@ -240,13 +248,12 @@ def auto_snr(data, off_left, off_right):
 
 def auto_snr_peak(data, off_left, off_right):
     off_data = data[off_left:off_right]
+    on_data = np.append(data[:off_left], data[off_right:])
     range_mean = np.median(off_data)
-    range_rms = 1.5*mad(off_data)
-    range_prof = (data - range_mean)/range_rms
+    range_rms = 1.48*mad(off_data)
+    #data[off_left:off_right] = range_mean
+    range_prof = (on_data - range_mean)/range_rms
     range_snrpeak = np.max(range_prof)
-    range_weq = np.sum(range_prof)/range_snrpeak
-    if(range_weq < 0):
-        return 0
     return (range_snrpeak)
 
 def sharp_lvl(dm, plot=False, pulse_region_sharp=[0, 0]):
@@ -277,13 +284,15 @@ def sharp_lvl(dm, plot=False, pulse_region_sharp=[0, 0]):
     snr_peak = auto_snr_peak(template, on_right+1, nbin)
     #print('1', pulse_region_sharp)
     real_snr = auto_snr(template, on_right+1, nbin)
-    #sharp_snr = auto_snr(sharp_template, pulse_region[1]+1, nbin)
+    #sharpness = auto_snr(sharp_template, pulse_region[1]+1, nbin)
     #print(on_left, on_right, nbin, pulse_region)
-    flux_snr = np.max(template[on_left: on_right]) - np.median(template[on_right+1:])
+    flux_peak = np.max(template[on_left: on_right]) - np.median(template[on_right+1:])
     ## ponderate sharp_template positive derivative is twice the negative
     #print(0, on_right, len(sharp_template))
-    sharp_snr = np.nanmean(sharp_template[0: on_right])
-    return real_snr, flux_snr, snr_peak, sharp_snr, pulse_region_sharp
+    sharpness = np.nanmean(sharp_template[0: on_right])
+    #sharpness = np.nanmean(sharp_template)
+    return real_snr, flux_peak, snr_peak, sharpness, pulse_region_sharp
+
 
 def search_pulse_region(dm):
     global AR
@@ -299,45 +308,18 @@ def search_pulse_region(dm):
     #print('search_pulse_region', nbin, pulse_region)
     return pulse_region_search
 
-def profil(ar, AX):
-    """
-    plot the profil I L V in the requested area AX
-    """
-    arx = ar.clone()
-    arx.dedisperse()
-    arx.tscrunch()
-    arx.fscrunch()
-    arx.remove_baseline()
-    phase = np.linspace(0, 1, arx.get_nbin())
-    if arx.get_npol() > 1:
-        arx.convert_state('Stokes')
-        data = arx.get_data()
-        data = data.squeeze()
-        AX.plot(phase, data[0, :],
-                'k', alpha=0.75, label='Total Intensity')
-        AX.plot(phase, np.sqrt((data[1, :])**2 + (data[2, :])**2),
-                'r', alpha=0.6, label='Linear polarization')
-        AX.plot(phase, data[3, :],
-                'b', alpha=0.6, label='Circular polarization')
-        AX.legend(loc='upper right')
-    else:
-        data = arx.get_data()
-        data = data.squeeze()
-        AX.plot(phase, data, 'k')
-    AX.grid(True, which="both", ls="-", alpha=0.65)
-    AX.set_xlabel('Pulse Phase')
-    AX.set_ylabel('Amplitude (AU)')
 
 
-def dm_trials(dm, diff, plot=False, mode='sharp_snr', Force_pulse_region=False, ncore=8):
+def dm_trials(dm, diff, plot=False, mode='sharpness', Force_pulse_region=False, ncore=8, lim_min_dm=0.5):
     dm_min = dm-float(diff)/2. #-16.6
     dm_max = dm+float(diff)/2. #-16.1
-    delt = (dm_max - dm_min) / 200.
+    if(dm_min < lim_min_dm): dm_min = lim_min_dm
+    delt = (dm_max - dm_min) / float(200)
     
     dm_vec = np.linspace(float(dm_min), float(dm_max), 1+int(((float(dm_max)-float(dm_min))/float(delt))))
     real_snr = np.zeros(len(dm_vec))
-    flux_snr = np.zeros(len(dm_vec))
-    sharp_snr = np.zeros(len(dm_vec))
+    flux_peak = np.zeros(len(dm_vec))
+    sharpness = np.zeros(len(dm_vec))
     snr_peak = np.zeros(len(dm_vec))
 
 
@@ -358,20 +340,21 @@ def dm_trials(dm, diff, plot=False, mode='sharp_snr', Force_pulse_region=False, 
                                             (dm_vec[n], False, [0, 0]))
                                             for n in range(len(dm_vec))]
     for idm in range(len(dm_vec)):
-        real_snr[idm], flux_snr[idm], snr_peak[idm], sharp_snr[idm], pulse_region_trial = multiple_results[idm].get(timeout=1)
+        real_snr[idm], flux_peak[idm], snr_peak[idm], sharpness[idm], pulse_region_trial = multiple_results[idm].get()
 
     snr_peak = smooth_Gaussian(snr_peak)
-    sharp_snr = smooth_Gaussian(sharp_snr)
+    sharpness = smooth_Gaussian(sharpness)
     real_snr = smooth_Gaussian(real_snr)
-    flux_snr = smooth_Gaussian(flux_snr)
-    if (mode == 'sharp_snr'):
-        return dm_vec[np.nanargmax(sharp_snr)]
+    flux_peak = smooth_Gaussian(flux_peak)
+
+    if (mode == 'sharpness'):
+        return dm_vec[np.nanargmax(sharpness)]
     elif (mode == 'snr_peak'):
         return dm_vec[np.nanargmax(snr_peak)]
     elif (mode == 'real_snr'):
         return dm_vec[np.nanargmax(real_snr)]
-    elif (mode == 'flux_snr'):
-        return dm_vec[np.nanargmax(flux_snr)]
+    elif (mode == 'flux_peak'):
+        return dm_vec[np.nanargmax(flux_peak)]
 
 def estimation_dm_error(pulse_region_est, real_snr, dm):
     global AR
@@ -406,6 +389,7 @@ def estimation_dm_error(pulse_region_est, real_snr, dm):
     delta_dm_vec = []
     period = AR.get_Integration(0).get_folding_period() # in sec
     first = True
+    top_valid_chan = False
     for ichan in range(AR.get_nchan()-1,0, -1):
         if(weights[ichan] == 0):
             real_snr = 0
@@ -415,7 +399,9 @@ def estimation_dm_error(pulse_region_est, real_snr, dm):
             template = np.roll(template, -pulse_region_est[0])
             on_right = (pulse_region_est[1]-pulse_region_est[0])%nbin
             on_left = 0
+            #print(np.shape(template),  on_right+1, nbin)
             real_snr = auto_snr(template, on_right+1, nbin)
+            #print(freqs[ichan], real_snr)
             on_in_sec = period*(float(on_right)/float(nbin))
             top_freq = freqs[ichan] + nchan_bw/2
             bot_freq = freqs[ichan] - nchan_bw/2
@@ -431,22 +417,93 @@ def estimation_dm_error(pulse_region_est, real_snr, dm):
     try:
         result = np.nanmin(delta_dm_vec)
     except:
-        result = 0
+        dt = on_in_sec/(8/5.)
+        if not top_valid_chan:
+            print("WARING: SNR too small can not compute a DM error")
+            result = np.nan
+        else:
+            result = dt/(4150.*((top_valid_chan- nchan_bw)**(-2)-(top_valid_chan)**(-2)))
     return result
 
+def smoothGaussian(list):
+    degree = int(np.ceil(0.07 * np.size(list) /4.))
+    window = degree*2-1  
+    weight = np.array([1.0]*window)
+    weightGauss = []  
+    for i in range(window):  
+        i = i-degree+1  
+        frac=i/float(window)  
+        gauss = 1/(np.exp((4*(frac))**2))  
+        weightGauss.append(gauss)  
+    weight = np.array(weightGauss)*weight  
+    smoothed = [0.0]*(len(list))  
+    for i in range(len(smoothed)-window):  
+        smoothed[i+int(window/2)] = sum(np.array(list[i:i+window])*weight)/sum(weight)  
+    return np.asarray(smoothed)
 
-def DM_fit(AR0, verbose=False, ncore=8):
+def auto_rebin(ar, ichan='NONE'):
+    arx = ar.clone()
+    arx.dedisperse()
+    arx.pscrunch()
+    arx.tscrunch()
+    if (ichan == 'NONE'):
+        arx.fscrunch()
+        ichan = 0
+    arx.remove_baseline()
+    nbin = arx.get_nbin()
+
+    prof = arx.get_Profile(0, 0, ichan).get_amps() * 10000
+    prof = np.asarray(prof)
+    prof_smooth = smoothGaussian( prof )
+    p_start, p_end = auto_find_on_window( prof_smooth, safe_fraction = 3/100. ,archive=False)
+    offbins = np.ones(nbin, dtype='bool')
+    if( p_start < p_end ):
+        offbins[ p_start : p_end ] = False
+        sizeon = p_end-p_start
+    else:
+        offbins[ p_start : ] = False
+        offbins[ : p_end ] = False
+    std = np.std(prof[offbins])
+    delta = np.max(np.abs(prof_smooth[~offbins] - np.roll(prof_smooth[~offbins], 1)))
+
+    bscrunch_factor = 1
+    #print(nbin, delta, 2.5*std)
+    while (nbin >32) and (delta < 2.9*std):
+        arx.bscrunch(2)
+        nbin = arx.get_nbin()
+        prof = arx.get_Profile(0, 0, ichan).get_amps() * 10000
+        prof = np.asarray(prof)
+        prof_smooth = smoothGaussian( prof )
+        p_start, p_end = auto_find_on_window( prof_smooth, safe_fraction = 7/100. ,archive=False)
+        offbins = np.ones(nbin, dtype='bool')
+        if( p_start < p_end ):
+            offbins[ p_start : p_end ] = False
+            sizeon = p_end-p_start
+        else:
+            offbins[ p_start : ] = False
+            offbins[ : p_end ] = False
+        std = np.std(prof[offbins])
+        delta = np.max(np.abs(prof_smooth[~offbins] - np.roll(prof_smooth[~offbins], 1)))
+        bscrunch_factor *= 2
+        print(nbin, delta, 2.9*std)
+    if (bscrunch_factor > 1):
+        bscrunch_factor /= 2
+        if (bscrunch_factor > 1):
+            ar.bscrunch(bscrunch_factor)
+            print('automatic rebin by factor: '+str(bscrunch_factor))
+        else:
+            print('automatic rebin by factor: '+str(bscrunch_factor))
+    return ar, bscrunch_factor
+
+
+def DM_fit(AR0, verbose=False, ncore=8, autorebin=True, lim_min_dm=0.5):
     global AR
-    AR = AR0.clone() #psr.Archive_load(ar_name)
+    AR = AR0.clone()
     dm_archive = AR.get_dispersion_measure()
-    
     if(verbose):print("Coherent dm = %.4f pc cm-3" % dm_archive)
-    
     AR.dedisperse()
     AR.tscrunch()
     AR.pscrunch()
-    
-    
     
     #diff = 0.1
     dm = AR.get_dispersion_measure()
@@ -469,20 +526,19 @@ def DM_fit(AR0, verbose=False, ncore=8):
     
     #exit(0)
     
-    real_snr, snr_flux, snr_peak, sharp_snr, pulse_region = sharp_lvl(dm, pulse_region_sharp=[0, 0])
+    real_snr, flux_peak, snr_peak, sharpness, pulse_region = sharp_lvl(dm, pulse_region_sharp=[0, 0])
     
     snr_limit = 250
     if(real_snr > snr_limit):
-        mode = 'sharp_snr'
-        if(verbose):print("The S/N is %.1f > %d -> will use the sharp_snr" %(real_snr, snr_limit))
+        mode = 'sharpness'
+        print("The S/N is %.1f > %d -> will use the %s" %(real_snr, snr_limit, mode))
     else:
-        mode = 'flux_snr'
-        if(verbose):print("The S/N is %.1f < %d -> will use the flux_snr" %(real_snr, snr_limit))
+        mode = 'flux_peak'
+        print("The S/N is %.1f < %d -> will use the %s" %(real_snr, snr_limit, mode))
     
-    dm_t0 = dm
     first_dm = dm
     first_dm_window = dm_window
-    first_snr = real_snr
+    first_snr = flux_peak #real_snr
     Force_pulse_region = False
     First = True
     while (dm_window > dm_minstep):
@@ -490,12 +546,13 @@ def DM_fit(AR0, verbose=False, ncore=8):
         if (dm_window/first_dm_window < 0.02) and (First):
             First = False
             #print('ICCI4', pulse_region)
-            real_snr, snr_flux, snr_peak, sharp_snr, pulse_region = sharp_lvl(dm, pulse_region_sharp=[0, 0])
+            real_snr, flux_peak, snr_peak, sharpness, pulse_region = sharp_lvl(dm, pulse_region_sharp=[0, 0])
             #print('snr_peak = ', snr_peak)
             Force_pulse_region = True
             snr_limit = 80
-            if(0.9*first_snr > real_snr):
-                if(verbose):print("The S/N is smaler than at 0.9*start_SNR %.1f < %.1f -> will be bscrunch by 2" %(0.9*real_snr, first_snr))
+            if(verbose):print("SNR peak = %.1f" % snr_peak)
+            if(0.9*first_snr > flux_peak):
+                if(verbose):print("the flux_peak is smaler than at 0.9*start_flux_peak %.1f < %.1f -> will be bscrunch by 2" %(0.9*flux_peak, first_snr))
                 AR.bscrunch(2)
                 if (AR.get_nbin() < 32):
                     dm = first_dm
@@ -508,13 +565,13 @@ def DM_fit(AR0, verbose=False, ncore=8):
                 if (dm_minstep < 1e-5): dm_minstep = 1e-5
                 if (dm_window < 0.01): dm_window = 0.01
                 pulse_region = search_pulse_region(dm)
-                real_snr, snr_flux, snr_peak, sharp_snr, pulse_region = sharp_lvl(dm, pulse_region_sharp=pulse_region)
-                first_snr = real_snr
+                real_snr, flux_peak, snr_peak, sharpness, pulse_region = sharp_lvl(dm, pulse_region_sharp=pulse_region)
+                first_snr = flux_peak
                 Force_pulse_region = False
                 First = True
                 continue
-            if( snr_peak < 8 ) and (AR.get_nbin() > 32):
-                if(verbose):print("The snr_peak %.1f is smaler than 8  -> will be bscrunch by 2" %(snr_peak))
+            if( snr_peak < 5 ) and (AR.get_nbin() > 32):
+                if(verbose):print("The snr_peak %.1f is smaler than 5  -> will be bscrunch by 2" %(snr_peak))
                 AR.bscrunch(2)
                 dm = first_dm
                 dt = period/float(AR.get_nbin())
@@ -523,33 +580,48 @@ def DM_fit(AR0, verbose=False, ncore=8):
                 if (dm_minstep < 1e-5): dm_minstep = 1e-5
                 if (dm_window < 0.01): dm_window = 0.01
                 pulse_region = search_pulse_region(dm)
-                real_snr, snr_flux, snr_peak, sharp_snr, pulse_region = sharp_lvl(dm, pulse_region_sharp=pulse_region)
-                first_snr = real_snr
+                real_snr, flux_peak, snr_peak, sharpness, pulse_region = sharp_lvl(dm, pulse_region_sharp=pulse_region)
+                first_snr = flux_peak
                 Force_pulse_region = False
                 First = True
                 continue
             if(real_snr > snr_limit):
-                mode = 'sharp_snr'
-                if(verbose):print("The S/N is %.1f > %d -> will use the sharp_snr" %(real_snr, snr_limit))
+                mode = 'sharpness'
+                if(verbose):print("The SNR is %.1f > %d -> will use the %s" %(real_snr, snr_limit, mode))
             else:
-                mode = 'flux_snr'
-                if(verbose):print("The S/N is %.1f < %d -> will use the flux_snr" %(real_snr, snr_limit))
-        dm = dm_trials(dm, dm_window, mode=mode, Force_pulse_region=Force_pulse_region, ncore=ncore)
+                mode = 'flux_peak'
+                if(verbose):print("The SNR is %.1f < %d -> will use the %s" %(real_snr, snr_limit, mode))
+        dm = dm_trials(dm, dm_window, mode=mode, Force_pulse_region=Force_pulse_region, ncore=ncore, lim_min_dm=lim_min_dm)
         dm_window /= 2
-        if(verbose):print(dm, dm_window)
-
-    AR0.set_dispersion_measure(dm)
-    AR0.dedisperse()
-    if (AR.get_nbin() >= 8) and ((AR0.get_nbin()/AR.get_nbin()) > 1):
-        rebin = (AR0.get_nbin()/AR.get_nbin())
-        AR0.bscrunch(int(rebin))
-    if (dm_t0 != dm):
+        print(dm, dm_window)
+    
+    AR.set_dispersion_measure(dm)
+    AR.dedisperse()
+    
+    real_snr, flux_peak, snr_peak, sharpness, pulse_region = sharp_lvl(dm, pulse_region_sharp=[0, 0])
+    
+    if (snr_peak >= 5) and (real_snr >= 20):
         dm_err = estimation_dm_error(pulse_region, real_snr, dm)
         if(verbose):print("Best dm is %.5f +- %.5f" % (dm, dm_err))
+        AR0.set_dispersion_measure(dm)
+        #AR0.dedisperse()  dedisperse + dededisperse add error in TOAs
+        if (autorebin):
+            if (AR.get_nbin() >= 8):
+                AR0, rebin = auto_rebin(AR0)
     else:
+        if (snr_peak < 5) and verbose: print("The snr_peak %.1f is smaler than 5" %(snr_peak))
+        if (real_snr < 20) and verbose: print("and real_snr %.1f is smaler than 10  -> back to initial DM" %(real_snr))
+        dm = first_dm
         dm_err = 0.0
-        if(verbose):print("It is not possible to find a better DM than the initial one dm is %.5f" % (dm))
+        AR.set_dispersion_measure(dm)
+        AR.dedisperse()
+
     return (AR0, dm, dm_err)
+
+
+
+
+
 
 
 
