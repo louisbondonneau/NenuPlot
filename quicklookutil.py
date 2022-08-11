@@ -88,17 +88,17 @@ def load_some_chan_in_archive_data(path, WORKDIR='NULL', initmetadata=False,
     """
     archives = []
     files = []
+    directory_list = []
     for file in path:
         if(dirname(file) == ''):
-            path = './'
+            directory_list.append('./')
         else:
-            path = dirname(file) + '/'
+            directory_list.append(dirname(file) + '/')
         file = basename(file)
         files.append(file)
     files.sort()
-    print("path used: %s" % (path))
     print("file(s) used: %s" % (files))
-    archives = [psr.Archive_load(path + files[0])]
+    archives = [psr.Archive_load(directory_list[0] + files[0])]
 
     if not(WORKDIR == 'NULL'):
         orig_stdout = sys.stdout
@@ -112,7 +112,7 @@ def load_some_chan_in_archive_data(path, WORKDIR='NULL', initmetadata=False,
 
     first = True
     for i in range(len(files)):
-        archives = psr.Archive_load(path + files[i])
+        archives = psr.Archive_load(directory_list[i] + files[i])
         buffarchive = archives.clone()
 
         freqs = np.zeros(archives.get_nchan())
@@ -202,14 +202,15 @@ def load_some_chan_in_archive_data(path, WORKDIR='NULL', initmetadata=False,
                 newarchive.update_centre_frequency()
                 newarchive.set_model(polycos)
             else:
-                polycos = newarchive.get_model()
-                buffarchive.set_model(polycos)
+                # can not apply a polycos to a different time
+                # polycos = newarchive.get_model()
+                # buffarchive.set_model(polycos)
                 newarchive.append(buffarchive)
         if not string == '':
             print(string)
 
         if verbose:
-            print(path + files[i])
+            print(directory_list[i] + files[i])
 
     if not(WORKDIR == 'NULL'):
         sys.stdout = orig_stdout
