@@ -205,7 +205,10 @@ def load_some_chan_in_archive_data(path, WORKDIR='NULL', initmetadata=False,
                 # can not apply a polycos to a different time
                 # polycos = newarchive.get_model()
                 # buffarchive.set_model(polycos)
-                newarchive.append(buffarchive)
+                # newarchive.append(buffarchive)
+                timeappend = psr.TimeAppend()
+                timeappend.ignore_phase = True
+                timeappend.append(newarchive, buffarchive)
         if not string == '':
             print(string)
 

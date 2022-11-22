@@ -61,6 +61,8 @@ python /path_to_code/NenuPlot.py /path_to_file/*.ar
 2022/03/14   quicklookutil: load_some_chan_in_archive_data the maxfreq exact value is now the last channel (the channel of value maxfreq was previously rm) 
 2022/04/08   plotfunction: color inversion for L and V (now it's like in pav -S)
 2022/04/08   quicklookutil: caluclation of a normalised SNR (normilised by time, elevation and RFI)
+2022/08/20   quicklookutil: directory liste (input files can now come from diff path)
+2022/08/20   quicklookutil: now use psr.TimeAppend() when append in time
 
 BUG know:
     - do not a recognized file format while using -arout and -gui in python3.8
