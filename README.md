@@ -1,72 +1,94 @@
+# NenuPlot README
 
-python NenuPlot.py -flat_cleaner -metadata_out -iterative -arout  /MyPATH_to_archive/archive.ar
+## Overview
 
+NenuPlot is a tool designed to assist in the visualization and analysis of PSRFITS folded files. It provides a quick-look generation in PDF and PNG formats and offers numerous options for data handling, including cleaning, rebinding, RM and DM fitting, and data extraction within specified frequency and time ranges.
 
+## Features
 
-              input:
-                    path to archive data files
-              output:
-                    archive.metadata      metadata ASCII file
-                    archive.ar.clear      cleaned archive
-                    archive.pdf           quicklook in pdf
+- Generation of quick-look files in PDF/PNG format
+- Fits for Rotation Measure (RM) and Dispersion Measure (DM)
+- Automatic rebinning for optimal data visualization
+- Metadata storage in a tiny database
+- Data extraction by time and frequency
+- Data cleaning and interference mitigation
+- Data scrunching in time and frequency domains
+- Mail sending capabilities with custom titles
+- Command-line and GUI modes
+- Data dedispersion and defaraday options
 
+## Features in progress an TODO
 
-              optional arguments:
-                    -h, --help            show this help message and exit
-                    -u PATH               output path (default in current directory)
-                    -o NAME               output name (default is archive name)
-                    -minfreq MINF         Minimum frequency to extract from the archives, no
-                                          default 0 MHz exepted for nenufar at 20 MHz
-                    -maxfreq MAXF         Maximum frequency to extract from the archives, no
-                                          default 2^24 MHz exepted for nenufar at 87 MHz
-                    -mask MASK            mask in input
-                    -b BSCRUNCH           time scrunch factor (before CoastGuard)
-                    -t TSCRUNCH           time scrunch factor (before CoastGuard)
-                    -f FSCRUNCH           frequency scrunch factor (before CoastGuard)
-                    -p                    polarisation scrunch (before CoastGuard)
-                    -ba BSCRUNCH_AFTER    bin scrunch factor (after CoastGuard)
-                    -ta TSCRUNCH_AFTER    time scrunch factor (after CoastGuard)
-                    -fa FSCRUNCH_AFTER    frequency scrunch factor (after CoastGuard)
-                    -fit_DM               will fit for a new DM value (at your own risk)
-                    -v                    Verbose mode
-                    -mail SENDMAIL        send the metadata and file by mail -mail [aaa@bbb.zz,
-                                          bbb@bbb.zz]
-                    -mailtitle MAILTITLE  modified the title of the mail
-                    -metadata_out         copy the metadatafile in a directory
-                    -gui                  Open the matplotlib graphical user interface
-                    -arout                write an archive in output PATH/*.ar.clear
-                    -maskout              write a dat file containing the mask PATH/*.mask
-                    -uploadpdf            upload the pdf/png file
-                    -nopdf                do not sauve the pdf/png file
-                    -nostokes             do not transforme to nostokes for phase/freq
-                    -dpi DPI              Dots per inch of the output file (default 400 for pdf
-                                          and 96 for png)
-                    -small_pdf            reduction of the pdf size using ghostscript
-                    -png                  output in png
-                    -noclean              Do not run coastguard
-                    -iterative            Run the iterative cleaner
-                    -flat_cleaner         flat bandpass for the RFI mitigation
-                    -chanthresh CHANTHRESH
-                                          chanthresh for loop 2 to X of CoastGuard (default is 6
-                                          or 3.5 if -flat_cleaner)
-                    -subintthresh SUBINTTHRESH
-                                          subintthresh for loop 2 to X of CoastGuard (default 3)
-                    -bad_subint BAD_SUBINT
-                                          bad_subint for CoastGuard (default is 0.9 a subint is
-                                          removed if masked part > 90 percent)
-                    -bad_chan BAD_CHAN    bad_chan for CoastGuard (default is 0.5 a channel is
-                                          removed if masked part > 50 percent)
-                    -timepolar            plot phase time polar
-                    -timenorme            normilized in time the phase/time plot
-                    -threshold THRESHOLD  threshold on the ampl in dyn spect and phase/freq
-                    -rm RM                defaraday with a new rm in rad.m-2
-                    -defaraday            defaraday the signal (signal is not defaraday by
-                                          default)
-                    -dm DM                dedisperse with a new dm in pc.cm-3
-                    -noflat               Do not flat the bandpass for plots
-                    -nozapfirstsubint     Do not zap the first subint
-                    -freqappend           append multiple archive in frequency dirrection
-                    -singlepulses_patch   phasing patch when append multiple single pulses
-                                          archive in frequency dirrection
-                    -initmetadata         keep initial metadata
+- Uploading capabilities for metadata, masks, archives, and quick-look files 
+- Random bug with time scrunch after cleaning
+- build a setup.py + requirement.txt
 
+## Installation
+
+To install NenuPlot, clone the repository or download the source code to your local machine. Make sure you have Python and the necessary dependencies installed.
+
+```
+git clone https://github.com/louisbondonneau/NenuPlot.git
+cd NenuPlot
+```
+
+Follow any additional installation instructions provided by the repository.
+
+## Usage
+
+NenuPlot can be used with a series of command-line arguments to customize the processing and output of the PSRFITS data files. Below is a general usage pattern:
+
+```
+NenuPlot [options] INPUT_ARCHIVE
+```
+
+`INPUT_ARCHIVE` should be the path to the file or files you wish to process.
+
+### Command-line Arguments
+
+#### Required Arguments:
+- `INPUT_ARCHIVE`: Path to the Archives to be processed.
+
+#### Optional Arguments:
+- `-h, --help`: Show the help message and exit.
+- `-u PATH`: Specify the output path (default: current directory).
+- `-o NAME`: Set the output name (default: first archive name).
+- `-v`: Enable Verbose mode.
+- `-version`: Show the program's version number and exit.
+- `-gui`: Open the matplotlib graphical user interface.
+- Cleaning options (`-clean`, `-noclean`).
+- DM fitting options (`-fit_DM`, `-nofit_DM`).
+- RM fitting options (`-fit_RM`, `-nofit_RM`).
+- Rebinning options (`-autorebin`, `-noautorebin`).
+- Database options (`-database`, `-nodatabase`).
+- Mail options (`-mail SENDMAIL`, `-mailtitle MAILTITLE`).
+- Time and frequency extraction options (`-mintime`, `-maxtime`, `-minsub`, `-maxsub`, `-minfreq`, `-maxfreq`).
+- Mask and RM input options (`-mask_input MASK_INPUT`, `-RM_input RM_INPUT`).
+- Scrunching options before and after CoastGuard cleaning (`-b`, `-t`, `-f`, `-ba`, `-ta`, `-fa`).
+- Output options for archives, metadata, RM files, masks, PDFs, and PNGs.
+- Visual options (`-Coherence`, `-timepolar`, `-timenorme`, `-threshold`).
+- Cleaning parameters (`-force_niter`, `-fast`, `-chanthresh`, `-subintthresh`, `-first_chanthresh`, `-first_subintthresh`, `-bad_subint`, `-bad_chan`).
+- Dedispersion and defaraday options (`-dm`, `-rm`, `-defaraday`, `-nodefaraday`).
+- Uploading options for various outputs.
+
+## Examples
+
+Here is an example command that processes an input archive, fits for a new DM, and outputs a PDF quick-look:
+
+```
+NenuPlot -fit_DM -PDF_out -u /path/to/output/ /path/to/input/archive
+```
+
+To get a full list of options with explanations and default values, run:
+
+```
+NenuPlot -h
+```
+
+## Output
+
+Depending on the options chosen, NenuPlot will generate the specified output files in the designated directory. This can include cleaned archives, metadata, RM files, masks, and visual representations of the data in PDF or PNG format.
+
+## Contributing
+
+Contributions to NenuPlot are welcome. Please follow the repository's guidelines for contributing, which may include coding standards, commit message formatting, and other best practices.
