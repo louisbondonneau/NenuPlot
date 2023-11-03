@@ -1,6 +1,7 @@
 import os
 DEFAULT_PATH = os.path.dirname(os.path.realpath(__file__)) + '/'
-import sys; sys.path += [DEFAULT_PATH + "/lib", DEFAULT_PATH + "/old"]
+import sys
+sys.path += [DEFAULT_PATH + "/lib", DEFAULT_PATH + "/old"]
 from sys import argv
 import socket
 import numpy as np
@@ -608,7 +609,6 @@ class NenuPlot():
         self.save_mask()
         self.scrunch_after()
 
-
         self.metadata_ini()
 
         self.DM_fit()
@@ -704,9 +704,12 @@ class NenuPlot():
                 ax31 = plt.subplot2grid((10, 5), (4, 2), colspan=1, rowspan=1, sharex=ax2, sharey=ax2)
                 ax32 = plt.subplot2grid((10, 5), (4, 3), colspan=1, rowspan=1, sharex=ax2, sharey=ax2)
                 ax33 = plt.subplot2grid((10, 5), (4, 4), colspan=1, rowspan=1, sharex=ax2, sharey=ax2)
-                plot_ar.phase_time(ax31, timenorme=self.args.plot_timenorme, pol=1, stokes=self.args.stokes,threshold=self.args.plot_threshold, nsub=32, nbin=128)
-                plot_ar.phase_time(ax32, timenorme=self.args.plot_timenorme, pol=2, stokes=self.args.stokes,threshold=self.args.plot_threshold, nsub=32, nbin=128)
-                plot_ar.phase_time(ax33, timenorme=self.args.plot_timenorme, pol=3, stokes=self.args.stokes,threshold=self.args.plot_threshold, nsub=32, nbin=128, rightaxis=True)
+                plot_ar.phase_time(ax31, timenorme=self.args.plot_timenorme, pol=1, stokes=self.args.stokes,
+                                   threshold=self.args.plot_threshold, nsub=32, nbin=128)
+                plot_ar.phase_time(ax32, timenorme=self.args.plot_timenorme, pol=2, stokes=self.args.stokes,
+                                   threshold=self.args.plot_threshold, nsub=32, nbin=128)
+                plot_ar.phase_time(ax33, timenorme=self.args.plot_timenorme, pol=3, stokes=self.args.stokes,
+                                   threshold=self.args.plot_threshold, nsub=32, nbin=128, rightaxis=True)
                 ax31.axes.get_yaxis().set_visible(False)
                 ax32.axes.get_yaxis().set_visible(False)
 
@@ -720,7 +723,8 @@ class NenuPlot():
                 ax36 = plt.subplot2grid((10, 5), (5, 4), colspan=1, rowspan=1, sharex=ax2, sharey=ax8)
                 plot_ar.phase_freq(ax34, pol=1, flatband=self.plot_flatband, stokes=self.args.stokes, threshold=self.args.plot_threshold, nchan=32, nbin=128)
                 plot_ar.phase_freq(ax35, pol=2, flatband=self.plot_flatband, stokes=self.args.stokes, threshold=self.args.plot_threshold, nchan=32, nbin=128)
-                plot_ar.phase_freq(ax36, pol=3, flatband=self.plot_flatband, stokes=self.args.stokes, threshold=self.args.plot_threshold, nchan=32, nbin=128, rightaxis=True)
+                plot_ar.phase_freq(ax36, pol=3, flatband=self.plot_flatband, stokes=self.args.stokes,
+                                   threshold=self.args.plot_threshold, nchan=32, nbin=128, rightaxis=True)
                 ax34.axes.get_yaxis().set_visible(False)
                 ax35.axes.get_yaxis().set_visible(False)
 

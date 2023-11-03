@@ -7,7 +7,8 @@ import matplotlib.transforms as mtransforms
 # from mypsrchive import psrchive_class
 # from DM_fit_class import DM_fit_class
 from RM_fit_class import RM_fit_class
-
+from astropy.coordinates import Angle
+import astropy.units as u
 
 """
 this code is a ploting library for pulsar archive data
@@ -952,8 +953,11 @@ class PlotArchive(RM_fit_class):
             AX.yaxis.set_label_position("right")
 
     def PA_vs_time(self, AX, rightaxis=False):
-        def rad_to_deg(rad):
-            return ((((rad * 180. / np.pi) + 180) / 2.) % 180) - 90
+        def phase_to_PPA(angle_rad):
+            # return ((((angle_rad * 180. / np.pi) + 180) / 2.) % 180) - 90
+            angle = Angle(angle_rad, unit=u.rad)
+            angle_wrapped = angle.wrap_at(180 * u.degree)
+            return angle_wrapped.degree / 2.
         try:
             time = self.this.scrunch_subint_mjd
             time = (time - self.times[0].mjd) * 1440 + self.times_subint[0] / 120.
@@ -964,11 +968,11 @@ class PlotArchive(RM_fit_class):
                 rm_refine_err = self.this.scrunch_subint_RM_refining_err
                 meanPA_refine_err = self.this.scrunch_subint_phase_refining_err
                 meanPA_refine_abs_err = self.this.scrunch_subint_phase_refining_err + rm_refine_err * 89875.51787368176 * (self.freqs[-1]**-2)
-                AX.errorbar(time, rad_to_deg(meanPA_refine), yerr=rad_to_deg(meanPA_refine_err), fmt='r+', label='meanPA [rad] (fit)')
-                AX.errorbar(time, rad_to_deg(meanPA_refine_abs), yerr=rad_to_deg(meanPA_refine_abs_err), fmt='b+', label='abs meanPA [rad] (fit)')
+                AX.errorbar(time, phase_to_PPA(meanPA_refine), yerr=phase_to_PPA(meanPA_refine_err), fmt='r+', label='meanPA [rad] (fit)')
+                AX.errorbar(time, phase_to_PPA(meanPA_refine_abs), yerr=phase_to_PPA(meanPA_refine_abs_err), fmt='b+', label='abs meanPA [rad] (fit)')
             except AttributeError:
-                AX.plot(time, rad_to_deg(meanPA_refine), 'r+', label='meanPA [rad] (fit)')
-                AX.plot(time, rad_to_deg(meanPA_refine_abs), 'b+', label='abs meanPA [rad] (fit)')
+                AX.plot(time, phase_to_PPA(meanPA_refine), 'r+', label='meanPA [rad] (fit)')
+                AX.plot(time, phase_to_PPA(meanPA_refine_abs), 'b+', label='abs meanPA [rad] (fit)')
         except AttributeError:
             pass
 
@@ -982,12 +986,12 @@ class PlotArchive(RM_fit_class):
                     interp_RM_refining_err = self.this.interp_RM_refining_err
                     interp_phase_refining_err = self.this.interp_phase_refining_err
                     AX.errorbar(time_interp,
-                                rad_to_deg(interp_phase_refining + interp_RM_refining * 89875.51787368176 * (self.freqs[-1]**-2)),
-                                yerr=rad_to_deg(interp_phase_refining_err + interp_RM_refining_err * 89875.51787368176 * (self.freqs[-1]**-2)),
+                                phase_to_PPA(interp_phase_refining + interp_RM_refining * 89875.51787368176 * (self.freqs[-1]**-2)),
+                                yerr=phase_to_PPA(interp_phase_refining_err + interp_RM_refining_err * 89875.51787368176 * (self.freqs[-1]**-2)),
                                 fmt='b+', label='abs meanPA [rad] (interp fit)', alpha=0.2)
                 except AttributeError:
-                    AX.plot(time_interp, rad_to_deg(interp_phase_refining + interp_RM_refining * 89875.51787368176 *
-                                                    (self.freqs[-1]**-2)), 'b+', label='abs meanPA [rad] (interp fit)', alpha=0.2)
+                    AX.plot(time_interp, phase_to_PPA(interp_phase_refining + interp_RM_refining * 89875.51787368176 *
+                                                      (self.freqs[-1]**-2)), 'b+', label='abs meanPA [rad] (interp fit)', alpha=0.2)
             except AttributeError:
                 pass
 
@@ -1003,12 +1007,12 @@ class PlotArchive(RM_fit_class):
                 meanPA_err_file = self.this.meanPA_err_file
                 # meanPA_err_file_interp = self.this.meanPA_err_file_interp
                 meanPA_err_file_interp_abs = self.this.meanPA_err_file_interp + self.this.RM_err_file_interp * 89875.51787368176 * (self.freqs[-1]**-2)
-                AX.errorbar(time_file, rad_to_deg(meanPA_file), yerr=rad_to_deg(meanPA_err_file), fmt='g+', label='meanPA [rad] (file)')
-                AX.errorbar(time_file_interp, rad_to_deg(meanPA_file_interp_abs), yerr=rad_to_deg(
+                AX.errorbar(time_file, phase_to_PPA(meanPA_file), yerr=phase_to_PPA(meanPA_err_file), fmt='g+', label='meanPA [rad] (file)')
+                AX.errorbar(time_file_interp, phase_to_PPA(meanPA_file_interp_abs), yerr=phase_to_PPA(
                     meanPA_err_file_interp_abs), fmt='g+', label='abs meanPA [rad] (interp file)', alpha=0.2)
             except AttributeError:
-                AX.plot(time_file, rad_to_deg(meanPA_file), 'g+', label='meanPA [rad] (file)')
-                AX.plot(time_file_interp, rad_to_deg(meanPA_file_interp_abs), 'g+', label='abs meanPA [rad] (interp file)', alpha=0.2)
+                AX.plot(time_file, phase_to_PPA(meanPA_file), 'g+', label='meanPA [rad] (file)')
+                AX.plot(time_file_interp, phase_to_PPA(meanPA_file_interp_abs), 'g+', label='abs meanPA [rad] (interp file)', alpha=0.2)
         except AttributeError:
             pass
         AX.legend(loc='upper right', fontsize=6)

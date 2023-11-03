@@ -17,7 +17,7 @@ NenuPlot is a tool designed to assist in the visualization and analysis of PSRFI
 - Command-line and GUI modes
 - Data dedispersion and defaraday options
 
-## Features in progress an TODO
+## Features in progress and TODO
 
 - Uploading capabilities for metadata, masks, archives, and quick-look files 
 - Random bug with time scrunch after cleaning
@@ -76,7 +76,7 @@ NenuPlot [options] INPUT_ARCHIVE
 Here is an example command that processes an input archive, fits for a new DM, and outputs a PDF quick-look:
 
 ```
-NenuPlot -fit_DM -PDF_out -u /path/to/output/ /path/to/input/archive
+NenuPlot -fit_DM -fit_RM -PDF_out -u /path/to/output/ /path/to/input/archive
 ```
 
 To get a full list of options with explanations and default values, run:
