@@ -1017,6 +1017,19 @@ class PlotArchive(RM_fit_class):
         for isub in range(len(self.times)):
             datetime_array.append(self.times[isub].to_datetime())
         AX.errorbar(self.times.to_datetime(), profil_PPA[:, best_bin], yerr=profil_PPA_err[:, best_bin], fmt='r+', label='PPA (best bin)')
+        AX.legend(loc='upper right', fontsize=6)
+        AX.set_xlabel('Time (minutes)')
+        if (rightaxis):
+            # AXchan = AX.twinx()
+            # AXchan.set_ylabel('abs PA\n(deg)')
+            AX.set_ylim([-95, 95])
+            AX.set_ylabel('abs PA\n(deg)')
+            AX.yaxis.tick_right()
+            AX.yaxis.set_ticks_position('both')
+            AX.yaxis.set_label_position("right")
+        else:
+            AX.set_ylim([-95, 95])
+            AX.set_ylabel('abs PA\n(deg)')
 
     def PA_vs_time_old(self, AX, rightaxis=False):
         def phase_to_PPA(angle_rad):
