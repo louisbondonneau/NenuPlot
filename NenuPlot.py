@@ -699,6 +699,11 @@ class NenuPlot():
                     self.log.log("Nenuplot: plot bandpass", objet='NenuPlot')
                 plot_ar.bandpass(ax3, mask=True, rightaxis=True)
 
+            if (self.args.fit_RM) or (self.args.RM_input):
+                if (self.useful_RM):
+                    ax6 = plt.subplot2grid((10, 5), (7, 2), colspan=3, rowspan=1)
+                    plot_ar.PA_vs_time(ax6, rightaxis=True)
+
             if not (self.args.plot_timepolar) and (self.useful_RM):
                 if(self.args.verbose):
                     self.log.log("Nenuplot: plot phase/time polarisation", objet='NenuPlot')
@@ -728,6 +733,9 @@ class NenuPlot():
                                    threshold=self.args.plot_threshold, nchan=32, nbin=128, rightaxis=True)
                 ax34.axes.get_yaxis().set_visible(False)
                 ax35.axes.get_yaxis().set_visible(False)
+            else:
+                self.ar.tscrunch()  # no more need time dim
+                plot_ar.set_Archive(self.ar)
 
             # ----------------phase_freq I Q U V in ax4 to ax7------------------------------
             if self.args.stokes:
@@ -744,10 +752,8 @@ class NenuPlot():
 
             if (self.args.fit_RM) or (self.args.RM_input):
                 if (self.useful_RM):
-                    ax5 = plt.subplot2grid((10, 5), (6, 2), colspan=3, rowspan=1)
-                    ax6 = plt.subplot2grid((10, 5), (7, 2), colspan=3, rowspan=1, sharex=ax5)
+                    ax5 = plt.subplot2grid((10, 5), (6, 2), colspan=3, rowspan=1, sharex=ax6)
                     plot_ar.RM_vs_time(ax5, rightaxis=True)
-                    plot_ar.PA_vs_time(ax6, rightaxis=True)
                 else:
                     ax5 = plt.subplot2grid((5, 5), (3, 2), colspan=1, rowspan=1, sharex=ax2, sharey=ax8)
                     ax6 = plt.subplot2grid((5, 5), (3, 3), colspan=1, rowspan=1, sharex=ax2, sharey=ax8)
