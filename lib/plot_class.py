@@ -986,8 +986,9 @@ class PlotArchive(RM_fit_class):
         best_bin = np.argmax(mean_profil_linear)
 
         # Calcul des derivees partielles
-        dPPA_dQ = -0.5 * profil_U / (profil_Q**2 + profil_U**2)  # (subint, bins)
-        dPPA_dU = 0.5 * profil_Q / (profil_Q**2 + profil_U**2)  # (subint, bins)
+        epsilon = 1e-10
+        dPPA_dQ = -0.5 * profil_U / (profil_Q**2 + profil_U**2 + epsilon)  # (subint, bins)
+        dPPA_dU = 0.5 * profil_Q / (profil_Q**2 + profil_U**2 + epsilon)  # (subint, bins)
 
         # Calcul de l'erreur sur PPA en radians
         print(np.shape(dPPA_dQ))
