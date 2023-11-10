@@ -972,6 +972,7 @@ class PlotArchive(RM_fit_class):
 
         profil_Q = data[:, 1, :]  # (subint, bins)
         profil_U = data[:, 2, :]  # (subint, bins)
+        print(self.offbins)
         for isub in range(arx.get_nsubint()):
             profil_Q_std = np.std(profil_Q[isub, self.offbins])  # (subint)
             profil_U_std = np.std(profil_U[isub, self.offbins])  # (subint)
