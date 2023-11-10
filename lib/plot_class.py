@@ -983,7 +983,7 @@ class PlotArchive(RM_fit_class):
         dPPA_dU = 0.5 * profil_Q / (profil_Q**2 + profil_U**2)  # (subint, bins)
 
         # Calcul de l'erreur sur PPA en radians
-        for isub in arx.get_nsubint():
+        for isub in range(arx.get_nsubint()):
             profil_PPA_err_rad = 0.5 * np.sqrt((dPPA_dQ[isub, :]**2) * (profil_Q_std[isub]**2) +
                                                (dPPA_dU[isub, :]**2) * (profil_U_std[isub]**2))  # (subint, bins)
 
