@@ -15,7 +15,7 @@ from metadata_class import Metadata
 from tinypsrdb import IncertException
 from configuration_class import Config_Reader
 
-import DM_fit_lib as DM_fit_lib
+from DM_fit_class import DM_fit_class
 
 
 from subprocess import check_output
@@ -463,7 +463,7 @@ class NenuPlot():
         if (self.ar.get_nchan() >= 10) and (self.args.fit_DM):
             if(self.args.verbose):
                 self.log.log("Nenuplot: DM_fit start", objet='NenuPlot')
-            new_dm, dm_err = DM_fit_lib.DM_fit(self.ar, verbose=self.args.verbose, ncore=8, log_obj=self.log)
+            new_dm, dm_err = DM_fit_class.DM_fit(self.ar, verbose=self.args.verbose, ncore=8, log_obj=self.log)
             self.ar.set_dispersion_measure(new_dm)
             self.args.name = self.args.name + '_DMfit'
             self.metadata_DM()
