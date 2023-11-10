@@ -1014,7 +1014,7 @@ class PlotArchive(RM_fit_class):
         print(profil_PPA_err[:, best_bin])
 
         datetime_array = []
-        for isub in range(len(self.times))
+        for isub in range(len(self.times)):
             datetime_array.append(self.times[isub].to_datetime())
         AX.errorbar(self.times.to_datetime(), profil_PPA[:, best_bin], yerr=profil_PPA_err[:, best_bin], fmt='r+', label='PPA (best bin)')
 
