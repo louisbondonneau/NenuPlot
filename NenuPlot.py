@@ -841,6 +841,11 @@ class NenuPlot():
         if (self.args.upload_archive):
             pass
 
+        # rm temporary file used to apply RMaux
+        if (self.args.fit_RM) or (self.args.RM_input):
+            if (self.useful_RM):
+                self.methode.remove(self.args.path + self.args.name + '.tmp')
+
 
 if __name__ == "__main__":
     nenuplot_obj = NenuPlot(verbose=True)
