@@ -1016,7 +1016,7 @@ class PlotArchive(RM_fit_class):
         datetime_array = []
         for isub in range(len(self.times)):
             datetime_array.append(self.times[isub].to_datetime())
-        AX.errorbar(self.times.to_datetime(), profil_PPA[:, best_bin], yerr=profil_PPA_err[:, best_bin], fmt='r+', label='PPA (best bin)')
+        AX.errorbar(datetime_array, profil_PPA[:, best_bin], yerr=profil_PPA_err[:, best_bin], fmt='r+', label='PPA (best bin)')
         AX.legend(loc='upper right', fontsize=6)
         AX.set_xlabel('Time (minutes)')
         if (rightaxis):
