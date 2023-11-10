@@ -752,7 +752,7 @@ class NenuPlot():
 
             if (self.args.fit_RM) or (self.args.RM_input):
                 if (self.useful_RM):
-                    ax5 = plt.subplot2grid((10, 5), (6, 2), colspan=3, rowspan=1, sharex=ax6)
+                    ax5 = plt.subplot2grid((10, 5), (6, 2), colspan=3, rowspan=1)
                     plot_ar.RM_vs_time(ax5, rightaxis=True)
                 else:
                     ax5 = plt.subplot2grid((5, 5), (3, 2), colspan=1, rowspan=1, sharex=ax2, sharey=ax8)
