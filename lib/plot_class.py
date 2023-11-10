@@ -973,9 +973,14 @@ class PlotArchive(RM_fit_class):
         profil_Q = data[:, 1, :]  # (subint, bins)
         profil_U = data[:, 2, :]  # (subint, bins)
         print(self.offbins)
+        profil_Q_std = []
+        profil_U_std = []
         for isub in range(arx.get_nsubint()):
-            profil_Q_std = np.std(profil_Q[isub, self.offbins])  # (subint)
-            profil_U_std = np.std(profil_U[isub, self.offbins])  # (subint)
+            profil_Q_std.append(np.std(profil_Q[isub, self.offbins]))
+            profil_U_std.append(np.std(profil_U[isub, self.offbins]))
+        profil_Q_std = np.array(profil_Q_std)
+        profil_U_std = np.array(profil_U_std)
+
         profil_linear = np.sqrt(profil_Q**2 + profil_U**2)  # (subint, bins)
         mean_profil_linear = np.nanmean(profil_linear, axis=1)  # (bins)
         best_bin = np.argmax(mean_profil_linear)
