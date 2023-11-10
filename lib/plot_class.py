@@ -1012,7 +1012,11 @@ class PlotArchive(RM_fit_class):
         print(self.times)
         print(profil_PPA[:, best_bin])
         print(profil_PPA_err[:, best_bin])
-        AX.errorbar(self.times, profil_PPA[:, best_bin], yerr=profil_PPA_err[:, best_bin], fmt='r+', label='PPA (best bin)')
+
+        datetime_array = []
+        for isub in range(len(self.times))
+            datetime_array.append(self.times[isub].to_datetime())
+        AX.errorbar(self.times.to_datetime(), profil_PPA[:, best_bin], yerr=profil_PPA_err[:, best_bin], fmt='r+', label='PPA (best bin)')
 
     def PA_vs_time_old(self, AX, rightaxis=False):
         def phase_to_PPA(angle_rad):
