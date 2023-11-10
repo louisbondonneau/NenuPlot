@@ -982,7 +982,7 @@ class PlotArchive(RM_fit_class):
         profil_U_std = np.array(profil_U_std)
 
         profil_linear = np.sqrt(profil_Q**2 + profil_U**2)  # (subint, bins)
-        mean_profil_linear = np.nanmean(profil_linear, axis=1)  # (bins)
+        mean_profil_linear = np.nanmean(profil_linear, axis=0)  # (bins)
         best_bin = np.argmax(mean_profil_linear)
 
         # Calcul des derivees partielles
