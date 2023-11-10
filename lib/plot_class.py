@@ -994,9 +994,11 @@ class PlotArchive(RM_fit_class):
         print(np.shape(dPPA_dU))
         print(np.shape(profil_Q_std))
         print(np.shape(profil_U_std))
+        profil_PPA_err_rad = []
         for isub in range(arx.get_nsubint()):
             profil_PPA_err_rad = 0.5 * np.sqrt((dPPA_dQ[isub, :]**2) * (profil_Q_std[isub]**2) +
                                                (dPPA_dU[isub, :]**2) * (profil_U_std[isub]**2))  # (subint, bins)
+        profil_PPA_err_rad = np.array(profil_PPA_err_rad)
 
         # Conversion de l'erreur en degres
         profil_PPA = np.degrees(0.5 * np.arctan2(profil_U, profil_Q))  # (subint, bins)
@@ -1007,7 +1009,8 @@ class PlotArchive(RM_fit_class):
         print(np.shape(profil_PPA))
         print(np.shape(profil_PPA_err))
         print(self.times)
-        print(np.shape(self.times))
+        print(profil_PPA[:, best_bin])
+        print(profil_PPA_err[:, best_bin])
         AX.errorbar(self.times, profil_PPA[:, best_bin], yerr=profil_PPA_err[:, best_bin], fmt='r+', label='PPA (best bin)')
 
     def PA_vs_time_old(self, AX, rightaxis=False):
