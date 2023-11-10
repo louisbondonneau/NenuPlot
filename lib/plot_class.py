@@ -961,7 +961,7 @@ class PlotArchive(RM_fit_class):
             arx = self.clone()
         if not (arx.get_dedispersed()):
             arx.dedisperse()
-        arx.mytscrunch_to_nsub(16)
+        arx.mytscrunch_to_nsub(32)
 
         # arx.flattenBP()
         arx.fscrunch()
