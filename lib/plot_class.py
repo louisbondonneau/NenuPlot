@@ -996,8 +996,8 @@ class PlotArchive(RM_fit_class):
         print(np.shape(profil_U_std))
         profil_PPA_err_rad = []
         for isub in range(arx.get_nsubint()):
-            profil_PPA_err_rad = 0.5 * np.sqrt((dPPA_dQ[isub, :]**2) * (profil_Q_std[isub]**2) +
-                                               (dPPA_dU[isub, :]**2) * (profil_U_std[isub]**2))  # (subint, bins)
+            profil_PPA_err_rad.append(0.5 * np.sqrt((dPPA_dQ[isub, :]**2) * (profil_Q_std[isub]**2) +
+                                                    (dPPA_dU[isub, :]**2) * (profil_U_std[isub]**2)))  # (subint, bins)
         profil_PPA_err_rad = np.array(profil_PPA_err_rad)
 
         # Conversion de l'erreur en degres
