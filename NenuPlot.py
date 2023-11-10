@@ -15,7 +15,8 @@ from metadata_class import Metadata
 from tinypsrdb import IncertException
 from configuration_class import Config_Reader
 
-import DM_fit_lib as DM_fit_lib
+#import DM_fit_lib as DM_fit_lib
+from .lib.DM_fit_lib import DM_fit_lib
 
 from subprocess import check_output
 
