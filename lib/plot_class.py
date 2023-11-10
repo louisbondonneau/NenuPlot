@@ -953,6 +953,47 @@ class PlotArchive(RM_fit_class):
             AX.yaxis.set_label_position("right")
 
     def PA_vs_time(self, AX, rightaxis=False):
+        if (self.verbose):
+            self.log.log("plotting PA_vs_time", objet=PLOT_OBJET)
+        try:
+            arx = self.myclone()
+        except AttributeError:
+            arx = self.clone()
+        if not (arx.get_dedispersed()):
+            arx.dedisperse()
+        arx.mytscrunch_to_nsub(16)
+
+        # arx.flattenBP()
+        arx.fscrunch()
+        arx.remove_baseline()
+        arx.convert_state('Stokes')
+
+        data = arx.get_data().squeeze()  # (subint, pol, bins)
+
+        profil_Q = data[:, 1, :]  # (subint, bins)
+        profil_U = data[:, 2, :]  # (subint, bins)
+        profil_Q_std = np.std(profil_Q[:, self.offbins])  # (subint)
+        profil_U_std = np.std(profil_U[:, self.offbins])  # (subint)
+        profil_linear = np.sqrt(profil_Q**2 + profil_U**2)  # (subint, bins)
+        mean_profil_linear = np.nanmean(profil_linear, axis=1)  # (bins)
+        best_bin = np.argmax(mean_profil_linear)
+
+        # Calcul des dérivées partielles
+        dPPA_dQ = -0.5 * profil_U / (profil_Q**2 + profil_U**2)  # (subint, bins)
+        dPPA_dU = 0.5 * profil_Q / (profil_Q**2 + profil_U**2)  # (subint, bins)
+
+        # Calcul de l'erreur sur PPA en radians
+        for isub in arx.get_nsubint():
+            profil_PPA_err_rad = 0.5 * np.sqrt((dPPA_dQ[isub, :]**2) * (profil_Q_std[isub]**2) +
+                                               (dPPA_dU[isub, :]**2) * (profil_U_std[isub]**2))  # (subint, bins)
+
+        # Conversion de l'erreur en degrés
+        profil_PPA = np.degrees(0.5 * np.arctan2(profil_U, profil_Q))  # (subint, bins)
+        profil_PPA_err = np.degrees(profil_PPA_err_rad)  # (subint, bins)
+
+        AX.errorbar(self.times, profil_PPA[:, best_bin], yerr=profil_PPA_err[:, best_bin], fmt='r+', label='PPA (best bin)')
+
+    def PA_vs_time_old(self, AX, rightaxis=False):
         def phase_to_PPA(angle_rad):
             # return ((((angle_rad * 180. / np.pi) + 180) / 2.) % 180) - 90
             angle = Angle(angle_rad, unit=u.rad)
