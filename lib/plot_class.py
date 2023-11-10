@@ -978,7 +978,7 @@ class PlotArchive(RM_fit_class):
         mean_profil_linear = np.nanmean(profil_linear, axis=1)  # (bins)
         best_bin = np.argmax(mean_profil_linear)
 
-        # Calcul des dérivées partielles
+        # Calcul des derivees partielles
         dPPA_dQ = -0.5 * profil_U / (profil_Q**2 + profil_U**2)  # (subint, bins)
         dPPA_dU = 0.5 * profil_Q / (profil_Q**2 + profil_U**2)  # (subint, bins)
 
@@ -987,7 +987,7 @@ class PlotArchive(RM_fit_class):
             profil_PPA_err_rad = 0.5 * np.sqrt((dPPA_dQ[isub, :]**2) * (profil_Q_std[isub]**2) +
                                                (dPPA_dU[isub, :]**2) * (profil_U_std[isub]**2))  # (subint, bins)
 
-        # Conversion de l'erreur en degrés
+        # Conversion de l'erreur en degres
         profil_PPA = np.degrees(0.5 * np.arctan2(profil_U, profil_Q))  # (subint, bins)
         profil_PPA_err = np.degrees(profil_PPA_err_rad)  # (subint, bins)
 
