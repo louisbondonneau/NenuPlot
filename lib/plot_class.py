@@ -1005,17 +1005,14 @@ class PlotArchive(RM_fit_class):
         profil_PPA = np.degrees(0.5 * np.arctan2(profil_U, profil_Q))  # (subint, bins)
         profil_PPA_err = np.degrees(profil_PPA_err_rad)  # (subint, bins)
 
-        print(best_bin)
-        print(np.shape(profil_PPA))
-        print(np.shape(profil_PPA))
-        print(np.shape(profil_PPA_err))
-        print(self.times)
-        print(profil_PPA[:, best_bin])
-        print(profil_PPA_err[:, best_bin])
-
         datetime_array = []
         for isub in range(len(self.times)):
             datetime_array.append(self.times[isub].to_datetime())
+
+        print(np.shape(datetime_array))
+        print(np.shape(profil_PPA[:, best_bin]))
+        print(np.shape(profil_PPA_err[:, best_bin]))
+
         AX.errorbar(datetime_array, profil_PPA[:, best_bin], yerr=profil_PPA_err[:, best_bin], fmt='r+', label='PPA (best bin)')
         AX.legend(loc='upper right', fontsize=6)
         AX.set_xlabel('Time (minutes)')
