@@ -5,7 +5,7 @@ import socket
 import numpy as np
 import argparse
 from datetime import timedelta
-
+import NenuPlot
 from NenuPlot import (reduce_pdf,
                       Log_class,
                       Methode,
@@ -83,8 +83,7 @@ BUG know:
     - some time RA and DEC values can be 0 -> wrong elevation
 """
 
-DEFAULT_PATH = os.path.dirname(os.path.realpath(__file__)) + '/'
-CONFIG_FILE = DEFAULT_PATH + 'lib/NenuPlot.conf'
+CONFIG_FILE = os.path.dirname(NenuPlot.__path__[0]) + '/NenuPlot.conf'
 
 
 class NenuPlot():
