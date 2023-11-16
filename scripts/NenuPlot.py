@@ -524,7 +524,7 @@ class NenuPlot():
                     cmd = cmd + " -m %s " % (out_name_tmp)
                     self.log.log("psredit cmd: %s" % cmd)
                     output = check_output(cmd, shell=True).decode("utf-8")
-                    from RM_fit_class import RM_fit_class as psrchive_class
+                    from NenuPlot import RM_fit_class as psrchive_class
                     self.ar.set_Archive(psrchive_class(ar_name=out_name_tmp, verbose=False, log_obj=self.log,
                                                        defaraday=True))
 
@@ -581,13 +581,13 @@ class NenuPlot():
             # print('GUI MODE')
             import matplotlib
             import matplotlib.pyplot as plt
-            from plot_class import PlotArchive
+            from NenuPlot import PlotArchive
         else:
             # print('PDF MODE')
             import matplotlib
             import matplotlib.pyplot as plt
             plt.switch_backend('agg')
-            from plot_class import PlotArchive
+            from NenuPlot import PlotArchive
 
         if (self.needplot):
             try:
