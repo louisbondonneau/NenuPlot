@@ -30,9 +30,20 @@ To install NenuPlot, clone the repository or download the source code to your lo
 ```
 git clone https://github.com/louisbondonneau/NenuPlot.git
 cd NenuPlot
+python setup.py install
 ```
 
-Follow any additional installation instructions provided by the repository.
+
+## Installation (version de dev)
+
+To install NenuPlot, clone the repository or download the source code to your local machine. Make sure you have Python and the necessary dependencies installed.
+
+```
+git clone -b NenuPlot_dev hhttps://github.com/louisbondonneau/NenuPlot.git
+cd NenuPlot
+python2.7 setup.py sdist
+pip2.7 install --editable .
+```
 
 ## Usage
 
