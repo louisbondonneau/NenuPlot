@@ -348,8 +348,7 @@ class DM_fit_class(psrchive_class):
         # return (AR0, dm, 0)
         self.set_dispersion_measure(dm)
         self.dedisperse()
-
-    return (dm, 0)
+        return (dm, 0)
 
 
 def SNR_methode_wrapper(args):
