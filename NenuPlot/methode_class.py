@@ -133,8 +133,22 @@ class Methode():
     # -----------------------------------------------------------------------------
 
     def rsync(self, source_file, target_user, target_host, target_directory):
+        # Vérifiez si target_user, target_host ou target_directory sont vides
+        if not source_file:
+            self.log.error('rsync error: source_file is empty', objet=UPLOAD)
+            return
+        if not target_user:
+            self.log.error('rsync error: target_user is empty', objet=UPLOAD)
+            return
+        if not target_host:
+            self.log.error('rsync error: target_host is empty', objet=UPLOAD)
+            return
+        if not target_directory:
+            self.log.error('rsync error: target_directory is empty', objet=UPLOAD)
+            return
+
         dest_path = "%s@%s:%s" % (target_user, target_host, target_directory)
-        cmd = ["rsync", "-av", source_file, dest_path]
+        cmd = ["rsync", "--dry-run", "-av", source_file, dest_path]
         try:
             output = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
             self.log.log('rsync success: [%s]' % (' '.join(cmd)), objet=UPLOAD)
@@ -146,6 +160,19 @@ class Methode():
             self.log.error('rsync error: [{}]'.format(err), objet=UPLOAD)
 
     def scp(self, source_file, target_user, target_host, target_directory):
+        # Vérifiez si target_user, target_host ou target_directory sont vides
+        if not source_file:
+            self.log.error('rsync error: source_file is empty', objet=UPLOAD)
+            return
+        if not target_user:
+            self.log.error('rsync error: target_user is empty', objet=UPLOAD)
+            return
+        if not target_host:
+            self.log.error('rsync error: target_host is empty', objet=UPLOAD)
+            return
+        if not target_directory:
+            self.log.error('rsync error: target_directory is empty', objet=UPLOAD)
+            return
         cmd = "chmod 664 %s && " % (source_file)
         cmd = cmd + "scp -p %s %s@%s:%s && " % (source_file, target_user, target_host, target_directory)
         proc = subprocess.Popen(cmd, shell=True)

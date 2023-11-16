@@ -1,21 +1,25 @@
 import os
-DEFAULT_PATH = os.path.dirname(os.path.realpath(__file__)) + '/'
 import sys
-sys.path += [DEFAULT_PATH + "/lib", DEFAULT_PATH + "/old"]
 from sys import argv
 import socket
 import numpy as np
 import argparse
 from datetime import timedelta
 
-from utils_lib import reduce_pdf
-from log_class import Log_class
-from methode_class import Methode
-from metadata_class import Metadata
-from tinypsrdb import IncertException
-from configuration_class import Config_Reader
-
-from DM_fit_class import DM_fit_class
+from NenuPlot import (reduce_pdf,
+                      Log_class,
+                      Methode,
+                      Metadata,
+                      IncertException,
+                      Config_Reader,
+                      DM_fit_class)
+# from utils_lib import reduce_pdf
+# from log_class import Log_class
+# from methode_class import Methode
+# from metadata_class import Metadata
+# from tinypsrdb import IncertException
+# from configuration_class import Config_Reader
+# from DM_fit_class import DM_fit_class
 
 
 from subprocess import check_output
@@ -698,7 +702,6 @@ class NenuPlot():
                 if(self.args.verbose):
                     self.log.log("Nenuplot: plot bandpass", objet='NenuPlot')
                 plot_ar.bandpass(ax3, mask=True, rightaxis=True)
-
 
             if not (self.args.plot_timepolar) and (self.useful_RM):
                 if(self.args.verbose):
