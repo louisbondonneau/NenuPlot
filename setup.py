@@ -13,7 +13,6 @@ setup(
     install_requires=[
         'numpy',
         'astropy',
-        'psrchive',
         'matplotlib'
     ],
     scripts=["scripts/NenuPlot.py",
