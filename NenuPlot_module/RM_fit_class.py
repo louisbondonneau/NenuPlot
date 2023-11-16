@@ -23,6 +23,7 @@ class RM_fit_class(DM_fit_class):
         super(RM_fit_class, self).__init__(*args, **kwargs)
         rmdelt_60mhz = 0.002
         self.rmdelt = (rmdelt_60mhz / 60**2) * (self.centre_frequency)**2
+        self.rm_window = None
         self.ncore = 40
         self.RM_sigma_limit = 8
         self.bin_sigma = 4.5
@@ -722,8 +723,12 @@ class RM_fit_class(DM_fit_class):
         return (best_RM, RM_sigma, spectra)
 
     def set_RM_vec(self, rm):
-        self.rmmax = rm + 4000 * self.rmdelt
-        self.rmmin = rm - 4000 * self.rmdelt
+        if not (self.rm_window is None):
+            self.rmmax = rm + self.rm_window / 2.
+            self.rmmin = rm - self.rm_window / 2.
+        else:
+            self.rmmax = rm + 4000 * self.rmdelt
+            self.rmmin = rm - 4000 * self.rmdelt
         self.RM_vec = np.arange(self.rmmin, self.rmmax + self.rmdelt, self.rmdelt)
         RM_zeros_idx = np.where(np.abs(self.RM_vec) < 0.25)[0]
         if(len(RM_zeros_idx) > 0):

@@ -9,7 +9,7 @@ setup(
     author_email='louis.bondonneau@obs-nancay.fr',
     # packages=find_packages(),
     packages=find_packages(),
-    package_data={"NenuPlot": ["NenuPlot.conf"]},
+    package_data={"NenuPlot_module": ["NenuPlot.conf"]},
     install_requires=[
         'numpy',
         'astropy',

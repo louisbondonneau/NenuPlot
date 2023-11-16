@@ -5,14 +5,14 @@ import socket
 import numpy as np
 import argparse
 from datetime import timedelta
-import NenuPlot
-from NenuPlot import (reduce_pdf,
-                      Log_class,
-                      Methode,
-                      Metadata,
-                      IncertException,
-                      Config_Reader,
-                      DM_fit_class)
+import NenuPlot_module
+from NenuPlot_module import (reduce_pdf,
+                             Log_class,
+                             Methode,
+                             Metadata,
+                             IncertException,
+                             Config_Reader,
+                             DM_fit_class)
 
 from subprocess import check_output
 
@@ -397,11 +397,11 @@ class NenuPlot():
         #                                   defaraday=self.args.defaraday)
 
         if (self.args.fit_RM) or (self.args.RM_input):
-            from NenuPlot import RM_fit_class as psrchive_class
+            from NenuPlot_module import RM_fit_class as psrchive_class
         elif (self.args.fit_DM):
-            from NenuPlot import DM_fit_class as psrchive_class
+            from NenuPlot_module import DM_fit_class as psrchive_class
         else:
-            from NenuPlot import psrchive_class
+            from NenuPlot_module import psrchive_class
 
         self.ar = psrchive_class(ar_name=self.args.INPUT_ARCHIVE, verbose=self.args.verbose, log_obj=self.log,
                                  minfreq=self.args.minfreq,
@@ -529,7 +529,7 @@ class NenuPlot():
                     cmd = cmd + " -m %s " % (out_name_tmp)
                     self.log.log("psredit cmd: %s" % cmd)
                     output = check_output(cmd, shell=True).decode("utf-8")
-                    from NenuPlot import RM_fit_class as psrchive_class
+                    from NenuPlot_module import RM_fit_class as psrchive_class
                     self.ar.set_Archive(psrchive_class(ar_name=out_name_tmp, verbose=False, log_obj=self.log,
                                                        defaraday=True))
 
@@ -586,13 +586,13 @@ class NenuPlot():
             # print('GUI MODE')
             import matplotlib
             import matplotlib.pyplot as plt
-            from NenuPlot import PlotArchive
+            from NenuPlot_module import PlotArchive
         else:
             # print('PDF MODE')
             import matplotlib
             import matplotlib.pyplot as plt
             plt.switch_backend('agg')
-            from NenuPlot import PlotArchive
+            from NenuPlot_module import PlotArchive
 
         if (self.needplot):
             try:
