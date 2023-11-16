@@ -195,6 +195,9 @@ class NenuPlot():
                             help="will fit for a new RM value (default is %d)" % self.RM_fit_toggle)
         parser.add_argument('-nofit_RM', dest='fit_RM', action='store_false', default=self.RM_fit_toggle)
 
+        parser.add_argument('-fit_RM_window', dest='fit_RM_window', type=float, default=None,
+                            help="will fit for a new RM in a specifique window in rad.m-2")
+
         parser.add_argument('-autorebin', dest='autorebin', action='store_true', default=self.autorebin_toggle,
                             help="Archive will be automaticaly rebin to an optimal bin number (default is %d)" % self.autorebin_toggle)
         parser.add_argument('-noautorebin', dest='autorebin', action='store_false', default=self.autorebin_toggle)
@@ -464,10 +467,12 @@ class NenuPlot():
             self.metadata_DM()
 
     def RM_fit(self):
-        # ----------------DM fit------------------------------
+        # ----------------RM fit------------------------------
         if (self.ar.get_nchan() >= 10) and (self.args.fit_RM):
             if(self.args.verbose):
                 self.log.log("Nenuplot: RM_fit start", objet='NenuPlot')
+            if(self.args.fit_RM_window):
+                self.ar.rm_window = self.args.fit_RM_window
             self.ar.init_RM_fit()
             self.ar.RM_reduction(only_bestbin=False, sum_stokes_bin=False, QU_fit=True)
             self.ar.RM_refining(sum_stokes_bin=True)
