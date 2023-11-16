@@ -13,14 +13,6 @@ from NenuPlot import (reduce_pdf,
                       IncertException,
                       Config_Reader,
                       DM_fit_class)
-# from utils_lib import reduce_pdf
-# from log_class import Log_class
-# from methode_class import Methode
-# from metadata_class import Metadata
-# from tinypsrdb import IncertException
-# from configuration_class import Config_Reader
-# from DM_fit_class import DM_fit_class
-
 
 from subprocess import check_output
 
@@ -402,11 +394,11 @@ class NenuPlot():
         #                                   defaraday=self.args.defaraday)
 
         if (self.args.fit_RM) or (self.args.RM_input):
-            from RM_fit_class import RM_fit_class as psrchive_class
+            from NenuPlot import RM_fit_class as psrchive_class
         elif (self.args.fit_DM):
-            from DM_fit_class import DM_fit_class as psrchive_class
+            from NenuPlot import DM_fit_class as psrchive_class
         else:
-            from mypsrchive import psrchive_class
+            from NenuPlot import psrchive_class
 
         self.ar = psrchive_class(ar_name=self.args.INPUT_ARCHIVE, verbose=self.args.verbose, log_obj=self.log,
                                  minfreq=self.args.minfreq,
