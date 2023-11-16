@@ -83,7 +83,7 @@ BUG know:
     - some time RA and DEC values can be 0 -> wrong elevation
 """
 
-CONFIG_FILE = os.path.dirname(NenuPlot.__path__[0]) + '/NenuPlot.conf'
+CONFIG_FILE = NenuPlot.__path__[0] + '/NenuPlot.conf'
 
 
 class NenuPlot():
