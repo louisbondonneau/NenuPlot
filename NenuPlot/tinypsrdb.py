@@ -2,9 +2,9 @@ import os
 import numpy as np
 from tinydb import TinyDB, Query
 
-from log_class import Log_class
-from methode_class import Methode
-from configuration_class import Config_Reader
+from .log_class import Log_class
+from .methode_class import Methode
+from .configuration_class import Config_Reader
 
 """
 # keys ############# def ##########

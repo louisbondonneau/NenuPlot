@@ -6,15 +6,12 @@ import os
 import re
 
 # from NenuPlot.log_class import Log_class
-from log_class import Log_class
-from methode_class import Methode
-
-DEFAULT_PATH = os.path.dirname(os.path.realpath(__file__)) + '/'
-CONFIG_FILE = DEFAULT_PATH + 'NenuPlot.conf'
+from .log_class import Log_class
+from .methode_class import Methode
 
 
 class Config_Reader():
-    def __init__(self, config_file=CONFIG_FILE, log_obj=None, verbose=False):
+    def __init__(self, config_file='/NenuPlot.conf', log_obj=None, verbose=False):
         self.verbose = verbose
         if log_obj is None:
             self.log = Log_class()

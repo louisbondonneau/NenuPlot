@@ -6,7 +6,8 @@ import numpy as np
 # time liba
 from astropy.time import Time
 from datetime import datetime
-from methode_class import Methode
+
+from .methode_class import Methode
 
 
 class Log_class(object):

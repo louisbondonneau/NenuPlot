@@ -9,10 +9,10 @@ import numpy as np
 import warnings
 import csv
 from multiprocessing import Pool
-from methode_class import smoothGaussian
-from methode_class import mad
-from mypsrchive import psrchive_class
-from DM_fit_class import DM_fit_class
+from .methode_class import smoothGaussian
+from .methode_class import mad
+from .mypsrchive import psrchive_class
+from .DM_fit_class import DM_fit_class
 
 RMFIT_OBJET = "RM_fit"
 CONFIG_FILE = os.path.dirname(os.path.realpath(__file__)) + '/' + 'NenuPlot.conf'

@@ -1,11 +1,11 @@
 import numpy as np
 
 # from NenuPlot.log_class import Log_class
-from log_class import Log_class
-from tinypsrdb import Psrdb
-from tinypsrdb import UpdateException
-from configuration_class import Config_Reader
-from methode_class import string_error_formating
+from .log_class import Log_class
+from .tinypsrdb import Psrdb
+from .tinypsrdb import UpdateException
+from .configuration_class import Config_Reader
+from .methode_class import string_error_formating
 
 
 ARCHIVE_GETTER_OBJET = 'metadata'

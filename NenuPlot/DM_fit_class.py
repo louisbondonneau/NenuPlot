@@ -7,10 +7,10 @@
 import os
 import numpy as np
 from multiprocessing import Pool
-from methode_class import smoothGaussian
-from mypsrchive import psrchive_class
+from .methode_class import smoothGaussian
+from .mypsrchive import psrchive_class
 
-CONFIG_FILE = os.path.dirname(os.path.realpath(__file__)) + '/' + 'NenuPlot.conf'
+CONFIG_FILE = 'NenuPlot.conf'
 
 
 class DM_fit_class(psrchive_class):

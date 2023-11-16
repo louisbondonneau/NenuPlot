@@ -6,7 +6,7 @@ import matplotlib.transforms as mtransforms
 # sns.set()
 # from mypsrchive import psrchive_class
 # from DM_fit_class import DM_fit_class
-from RM_fit_class import RM_fit_class
+from .RM_fit_class import RM_fit_class
 from astropy.coordinates import Angle
 import astropy.units as u
 

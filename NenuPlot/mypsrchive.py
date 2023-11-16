@@ -16,9 +16,9 @@ from astropy.coordinates import SkyCoord, EarthLocation, AltAz, FK5
 from astropy.time import Time
 from datetime import datetime, timedelta
 
-from log_class import Log_class
-from configuration_class import Config_Reader
-from methode_class import smoothGaussian
+from .log_class import Log_class
+from .configuration_class import Config_Reader
+from .methode_class import smoothGaussian
 
 ARCHIVE_METHODE_OBJET = 'Archive_methode'
 
