@@ -462,6 +462,7 @@ class NenuPlot():
             if(self.args.verbose):
                 self.log.log("Nenuplot: DM_fit start", objet='NenuPlot')
             new_dm, dm_err = DM_fit_class.DM_fit(self.ar, verbose=self.args.verbose, ncore=8)
+            # new_dm, dm_err = self.ar.DM_fit(verbose=self.args.verbose, ncore=8)
             self.ar.set_dispersion_measure(new_dm)
             self.args.name = self.args.name + '_DMfit'
             self.metadata_DM()
