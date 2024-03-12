@@ -148,7 +148,7 @@ class Methode():
             return
 
         dest_path = "%s@%s:%s" % (target_user, target_host, target_directory)
-        cmd = ["rsync", "--dry-run", "-av", source_file, dest_path]
+        cmd = ["rsync", "-av", source_file, dest_path]
         try:
             output = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
             self.log.log('rsync success: [%s]' % (' '.join(cmd)), objet=UPLOAD)
