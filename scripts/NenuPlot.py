@@ -782,7 +782,7 @@ class NenuPlot():
 
             plt.draw()
 
-            if(self.args.PDF_out):
+            if(self.args.PDF_out) or (self.args.sendmail) or (self.args.upload_PDF):
                 if(self.args.verbose):
                     self.log.log("Nenuplot: savefig to " + self.args.path + self.args.name + '.pdf', objet='NenuPlot')
                 plt.savefig(self.args.path + self.args.name + '.pdf', dpi=int(self.args.PDF_dpi), format='pdf')
