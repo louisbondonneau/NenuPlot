@@ -88,15 +88,15 @@ class psrchive_class(psr.Archive):
         return archive
 
     def mytscrunch(self, tscrunch_factor):
-        self.tscrunch(np.round(tscrunch_factor))
+        self.tscrunch(int(np.round(tscrunch_factor)))
         self.set_times()
 
     def myfscrunch(self, fscrunch_factor):
-        self.fscrunch(np.round(fscrunch_factor))
+        self.fscrunch(int(np.round(fscrunch_factor)))
         self.set_freqs()
 
     def mybscrunch(self, bscrunch_factor):
-        self.bscrunch(np.round(bscrunch_factor))
+        self.bscrunch(int(np.round(bscrunch_factor)))
         self.set_onpulse(on_left=None, on_right=None, rebuild_local_scrunch=True)
 
     def myfscrunch_to_nchan(self, nchan):

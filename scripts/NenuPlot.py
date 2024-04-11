@@ -576,7 +576,7 @@ class NenuPlot():
             self.useful_RM = False
 
     def main(self):
-        if (self.args.gui is False) and (self.args.sendmail is False) and (self.args.PDF_out is False) and (self.args.PNG_out is False) and (self.args.upload_PDF is False):
+        if (self.args.gui is False) and (self.args.sendmail is False) and (self.args.PDF_out is False) and (self.args.PNG_out is False) and (self.args.upload_PDF is False) and (self.args.upload_PNG is False):
             self.needplot = False
         else:
             self.needplot = True
