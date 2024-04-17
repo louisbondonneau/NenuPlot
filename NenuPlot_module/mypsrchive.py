@@ -709,7 +709,7 @@ class psrchive_class(psr.Archive):
         except NameError:
             self.local_scrunch()
             prof = self.scrunch.get_Profile(0, 0, 0).get_amps() * 10000
-        prof_var = np.abs(prof - np.roll(prof, 1))
+        prof_var = (prof - np.roll(prof, 1))**2
         sharpness = np.nanmean(prof_var[self.onbins])
         return sharpness
 
