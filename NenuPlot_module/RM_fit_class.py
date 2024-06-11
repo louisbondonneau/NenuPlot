@@ -295,8 +295,8 @@ class RM_fit_class(DM_fit_class):
         self.scrunch_subint_dur[isub_scrunched] = np.sum(self.subint_dur[self.scrunch_subint_start_ind[isub_scrunched]: self.scrunch_subint_stop_ind[isub_scrunched]])
         self.scrunch_subint_dur[isub_scrunched + 1] = np.sum(self.subint_dur[self.scrunch_subint_start_ind[isub_scrunched + 1]: self.scrunch_subint_stop_ind[isub_scrunched + 1]])
 
-        isub1 = range(self.scrunch_subint_start_ind[isub_scrunched], self.scrunch_subint_stop_ind[isub_scrunched])
-        isub2 = range(self.scrunch_subint_start_ind[isub_scrunched + 1], self.scrunch_subint_stop_ind[isub_scrunched + 1])
+        isub1 = list(range(self.scrunch_subint_start_ind[isub_scrunched], self.scrunch_subint_stop_ind[isub_scrunched]))
+        isub2 = list(range(self.scrunch_subint_start_ind[isub_scrunched + 1], self.scrunch_subint_stop_ind[isub_scrunched + 1]))
 
         RM1, RM_sigma1 = self.compute_subint(isub1, rm_perbin=False, only_bestbin=only_bestbin, sum_stokes_bin=sum_stokes_bin)
         RM2, RM_sigma2 = self.compute_subint(isub2, rm_perbin=False, only_bestbin=only_bestbin, sum_stokes_bin=sum_stokes_bin)
