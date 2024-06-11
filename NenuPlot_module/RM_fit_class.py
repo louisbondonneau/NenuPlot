@@ -561,7 +561,7 @@ class RM_fit_class(DM_fit_class):
             return np.sqrt((Q_residual)**2 + (U_residual)**2) * L_data / np.nansum(Lsum_data)
 
         for isub_scrunched in range(len(self.scrunch_subint_RM)):
-            isub_vec = range(self.scrunch_subint_start_ind[isub_scrunched], self.scrunch_subint_stop_ind[isub_scrunched])
+            isub_vec = list(range(self.scrunch_subint_start_ind[isub_scrunched], self.scrunch_subint_stop_ind[isub_scrunched]))
             ibin_vec = self.get_intence_bins(isub=isub_vec, rebuild_local_scrunch=True, sigma=self.bin_sigma, only_bestbin=False)
 
             # Q [ichan, ibin] with nan
