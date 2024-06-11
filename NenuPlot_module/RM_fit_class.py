@@ -313,7 +313,7 @@ class RM_fit_class(DM_fit_class):
         self.scrunch_subint_sigma = []
         for isub_scrunched in range(len(self.scrunch_subint_mjd)):
             self.log.log("progress : %d/%d" % (isub_scrunched + 1, len(self.scrunch_subint_mjd)), objet=RMFIT_OBJET)
-            isub = range(self.scrunch_subint_start_ind[isub_scrunched], self.scrunch_subint_stop_ind[isub_scrunched])
+            isub = list(range(self.scrunch_subint_start_ind[isub_scrunched], self.scrunch_subint_stop_ind[isub_scrunched]))
             RM, RM_sigma = self.compute_subint(isub, rm_perbin=False, only_bestbin=only_bestbin, sum_stokes_bin=sum_stokes_bin)
             self.log.log("RM = %.6f sigma = %.1f duration = %.3f sec" % (RM, RM_sigma,
                                                                          self.scrunch_subint_dur[isub_scrunched]), objet=RMFIT_OBJET)

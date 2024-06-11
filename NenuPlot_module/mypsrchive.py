@@ -1188,7 +1188,7 @@ class psrchive_class(psr.Archive):
             y = 165545.525467
             z = 4670271.363
         except ValueError:
-            self.log.warning('WARNING: archive.get_ant_xyz() faild will used nancay location', objet=ARCHIVE_GETTER_OBJET)
+            self.log.warning(f"WARNING: archive.get_ant_xyz() = {self.get_ant_xyz()} faild will used nancay location", objet=ARCHIVE_GETTER_OBJET)
             x = 4324016.70769
             y = 165545.525467
             z = 4670271.363
