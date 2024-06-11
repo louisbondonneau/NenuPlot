@@ -489,13 +489,13 @@ class NenuPlot():
 
     def scrunch_after(self):
         if (self.needplot) or (self.args.archive_out):
-            if (self.args.bscrunch_after > 1):
+            if (int(self.args.bscrunch_after) > 1):
                 if(self.ar.get_nbin() / int(self.args.bscrunch_after) < 8):
                     self.args.bscrunch_after = int(self.ar.get_nbin() / 8)
                 self.ar.mybscrunch(int(self.args.bscrunch_after))
-            if (self.args.tscrunch_after > 1):
+            if (int(self.args.tscrunch_after) > 1):
                 self.ar.mytscrunch(int(self.args.tscrunch_after))
-            if (self.args.fscrunch_after > 1):
+            if (int(self.args.fscrunch_after) > 1):
                 self.ar.myfscrunch(int(self.args.fscrunch_after))
 
     def save_archive(self):
