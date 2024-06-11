@@ -1179,6 +1179,7 @@ class psrchive_class(psr.Archive):
     # -----------------------------------------------------------------------------
 
     def get_EarthLocation(self):
+        print(self.get_ant_xyz())
         try:
             x, y, z = self.get_ant_xyz()
         except AttributeError:
@@ -1186,6 +1187,12 @@ class psrchive_class(psr.Archive):
             x = 4324016.70769
             y = 165545.525467
             z = 4670271.363
+        except ValueError:
+            self.log.warning('WARNING: archive.get_ant_xyz() faild will used nancay location', objet=ARCHIVE_GETTER_OBJET)
+            x = 4324016.70769
+            y = 165545.525467
+            z = 4670271.363
+
         return EarthLocation.from_geocentric(x=float(x) * u.m, y=float(y) * u.m, z=float(z) * u.m)
 
     def get_SkyCoord(self, equinox='J2000'):
