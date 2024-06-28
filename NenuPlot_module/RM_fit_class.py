@@ -735,7 +735,7 @@ class RM_fit_class(DM_fit_class):
                                                                            self.freqs, self.RM_vec, self.get_doppler(subint=subint_doppler), MP=True)
         else:
             best_RM, RM_sigma, spectra = multiprocessing_RM_specrum(self.ncore, isub_data, ibin_vec, self.centre_frequency,
-                                                                    self.freqs, self.RM_vec, self.get_doppler(subint=subint_doppler), MP=True, plot=self.plot_RMspectrum, filename=self.get_filename())
+                                                                    self.freqs, self.RM_vec, self.get_doppler(subint=subint_doppler), MP=True, plot=self.plot_RMspectrum, filename=self.get_filename(), isub_vec=isub_vec)
         return (best_RM, RM_sigma, spectra)
 
     def set_RM_vec(self, rm):
@@ -899,7 +899,7 @@ def multiprocessing_RM_specrum_perbin(ncore, isub_data, ibin_vec, centre_frequen
     return (best_RM, RMsigma, ibin_spectra)
 
 
-def multiprocessing_RM_specrum(ncore, isub_data, ibin_vec, centre_frequency, freqs, RM_vec, doppler, MP=True, plot=False, filename=None):
+def multiprocessing_RM_specrum(ncore, isub_data, ibin_vec, centre_frequency, freqs, RM_vec, doppler, MP=True, plot=False, filename=None, isub_vec=None):
     best_RM, RMsigma, ibin_spectra = multiprocessing_RM_specrum_perbin(ncore=ncore, isub_data=isub_data, ibin_vec=ibin_vec,
                                                                        centre_frequency=centre_frequency, freqs=freqs, RM_vec=RM_vec, doppler=doppler, MP=MP)
     spectra = np.nansum(ibin_spectra, axis=0)
