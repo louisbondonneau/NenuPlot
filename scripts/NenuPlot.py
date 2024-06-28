@@ -430,7 +430,7 @@ class NenuPlot():
             from NenuPlot_module import RM_fit_class as psrchive_class
             specific_kwargs = {
                 'plot_QU': self.args.plot_QU,  # Add other specific kwargs if needed
-                'plot_RMspectrum': self.plot_RMspectrum,
+                'plot_RMspectrum': self.args.plot_RMspectrum,
                 'rm_window': self.args.fit_RM_window,
             }
         elif (self.args.fit_DM):
