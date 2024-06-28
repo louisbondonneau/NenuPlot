@@ -8,6 +8,7 @@ import os
 import numpy as np
 import warnings
 import csv
+import matplotlib.pyplot as plt
 from multiprocessing import Pool
 from .methode_class import smoothGaussian
 from .methode_class import mad
@@ -483,7 +484,6 @@ class RM_fit_class(DM_fit_class):
             U_residual = (np.squeeze(U_fit) - np.squeeze(U_data_norm)) / np.squeeze(U_std_norm)
 
             if (plot):
-                import matplotlib.pyplot as plt
                 fig = plt.figure(figsize=(12, 3))
                 plt.subplots_adjust(top=0.92, bottom=0.145,
                                     left=0.045, right=0.995,
