@@ -133,6 +133,7 @@ class NenuPlot():
         self.metadata_out = nenuplot_config.get_config('NENUPLOT', 'metadata_out')
         self.RM_out = nenuplot_config.get_config('NENUPLOT', 'RM_out')
         self.plot_QU = nenuplot_config.get_config('NENUPLOT', 'plot_QU')
+        self.plot_RMspectrum = nenuplot_config.get_config('NENUPLOT', 'plot_RMspectrum')
         # --- UPLOAD METADATA ---
         self.upload_metadata_toggle = nenuplot_config.get_config('NENUPLOT', 'upload_metadata_toggle')
         self.upload_metadata_hostname = nenuplot_config.get_config('NENUPLOT', 'upload_metadata_hostname')
@@ -260,6 +261,11 @@ class NenuPlot():
 
         parser.add_argument('-plot_QU', dest='plot_QU', action='store_true', default=self.plot_QU,
                             help="plot QU fit diagram (default is %d)" % self.plot_QU)
+
+        parser.add_argument('-plot_RMspectrum', dest='plot_RMspectrum', action='store_true', default=self.plot_RMspectrum,
+                            help="plot RMspectrum (default is %d)" % self.plot_RMspectrum)
+
+                            
 
         parser.add_argument('-noRM_out', dest='RM_out', action='store_false', default=self.RM_out)
 
@@ -424,6 +430,7 @@ class NenuPlot():
             from NenuPlot_module import RM_fit_class as psrchive_class
             specific_kwargs = {
                 'plot_QU': self.args.plot_QU,  # Add other specific kwargs if needed
+                'plot_RMspectrum': self.plot_RMspectrum,
                 'rm_window': self.args.fit_RM_window,
             }
         elif (self.args.fit_DM):

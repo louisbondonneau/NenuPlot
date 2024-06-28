@@ -26,6 +26,9 @@ class RM_fit_class(DM_fit_class):
         self.plot_QU = kwargs.get('plot_QU', False)
         if "plot_QU" in kwargs:
             kwargs.pop('plot_QU')
+        self.plot_RMspectrum = kwargs.get('plot_RMspectrum', False)
+        if "plot_RMspectrum" in kwargs:
+            kwargs.pop('plot_RMspectrum')
         super(RM_fit_class, self).__init__(*args, **kwargs)
         rmdelt_60mhz = 0.002
         self.rmdelt = (rmdelt_60mhz / 60**2) * (self.centre_frequency)**2
@@ -732,7 +735,7 @@ class RM_fit_class(DM_fit_class):
                                                                            self.freqs, self.RM_vec, self.get_doppler(subint=subint_doppler), MP=True)
         else:
             best_RM, RM_sigma, spectra = multiprocessing_RM_specrum(self.ncore, isub_data, ibin_vec, self.centre_frequency,
-                                                                    self.freqs, self.RM_vec, self.get_doppler(subint=subint_doppler), MP=True)
+                                                                    self.freqs, self.RM_vec, self.get_doppler(subint=subint_doppler), MP=True, plot=self.plot_RMspectrum)
         return (best_RM, RM_sigma, spectra)
 
     def set_RM_vec(self, rm):
@@ -896,7 +899,7 @@ def multiprocessing_RM_specrum_perbin(ncore, isub_data, ibin_vec, centre_frequen
     return (best_RM, RMsigma, ibin_spectra)
 
 
-def multiprocessing_RM_specrum(ncore, isub_data, ibin_vec, centre_frequency, freqs, RM_vec, doppler, MP=True):
+def multiprocessing_RM_specrum(ncore, isub_data, ibin_vec, centre_frequency, freqs, RM_vec, doppler, MP=True, plot=False):
     best_RM, RMsigma, ibin_spectra = multiprocessing_RM_specrum_perbin(ncore=ncore, isub_data=isub_data, ibin_vec=ibin_vec,
                                                                        centre_frequency=centre_frequency, freqs=freqs, RM_vec=RM_vec, doppler=doppler, MP=MP)
     spectra = np.nansum(ibin_spectra, axis=0)
@@ -912,6 +915,24 @@ def multiprocessing_RM_specrum(ncore, isub_data, ibin_vec, centre_frequency, fre
         print('np.shape(data)=', np.shape(isub_data))
         print('np.nanmean(data)=', np.nanmean(isub_data))
         print('np.nanmax(data)=', np.nanmax(isub_data))
+
+    if plot:
+        fig, ax0 = plt.subplots(figsize=(10, 6))
+        ax0.plot(RM_vec, spectra, label='RM Spectrum')
+        ax0.set_xlabel('RM Values')
+        ax0.set_ylabel('Spectra')
+        ax0.set_title('RM Spectrum')
+        ax0.legend(loc='upper right')
+
+        filename = os.path.splitext(os.path.basename(self.get_filename()))[0]
+        if isinstance(isub_vec, (list, np.ndarray)):
+            plot_name = f"{filename}_{min(isub_vec)}_{max(isub_vec)}_RMspectrum.pdf"
+        else:
+            plot_name = f"{filename}_{str(isub_vec)}_RMspectrum.pdf"
+        
+        plt.tight_layout()
+        plt.savefig(plot_name, format='pdf')
+
     return best_RM, RMsigma, spectra
 
 
