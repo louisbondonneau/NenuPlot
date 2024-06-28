@@ -441,7 +441,7 @@ class RM_fit_class(DM_fit_class):
         self.scrunch_subint_phase_refining = np.zeros(len(self.scrunch_subint_RM))
         self.scrunch_subint_phase_refining_err = np.zeros(len(self.scrunch_subint_RM))
 
-        def QU_residual(param, freqs, rm=None, max_freq=None, freqs_extended=None, isub_vec=None, ibin_vec=None, coh_rm=None, plot=None):
+        def QU_residual(param, freqs, rm=None, max_freq=None, freqs_extended=None, isub_vec=None, ibin_vec=None, coh_rm=None, plot=False):
             Q_fit, U_fit = self.Simulated_IQUV(param, max_freq, freqs, freqs_extended, rm=rm, coh_rm=coh_rm)
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore", category=RuntimeWarning)
@@ -477,7 +477,7 @@ class RM_fit_class(DM_fit_class):
             Q_residual = (np.squeeze(Q_fit) - np.squeeze(Q_data_norm)) / np.squeeze(Q_std_norm)
             U_residual = (np.squeeze(U_fit) - np.squeeze(U_data_norm)) / np.squeeze(U_std_norm)
 
-            if (plot is not None):
+            if (plot):
                 import matplotlib.pyplot as plt
                 fig = plt.figure(figsize=(12, 3))
                 plt.subplots_adjust(top=0.92, bottom=0.145,
