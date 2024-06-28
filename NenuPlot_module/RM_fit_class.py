@@ -20,14 +20,16 @@ CONFIG_FILE = os.path.dirname(os.path.realpath(__file__)) + '/' + 'NenuPlot.conf
 
 class RM_fit_class(DM_fit_class):
     def __init__(self, *args, **kwargs):
+        self.rm_window = kwargs.get('rm_window', None)
+        kwargs.pop('rm_window')
+        self.plot_QU = kwargs.get('plot_QU', False)
+        kwargs.pop('plot_QU')
         super(RM_fit_class, self).__init__(*args, **kwargs)
         rmdelt_60mhz = 0.002
         self.rmdelt = (rmdelt_60mhz / 60**2) * (self.centre_frequency)**2
-        self.rm_window = kwargs.get('rm_window', None)
         self.ncore = kwargs.get('ncore', 40)
         self.RM_sigma_limit = kwargs.get('RM_sigma_limit', 8)
         self.bin_sigma = 4.5
-        self.plot_QU = kwargs.get('plot_QU', False)
 
     def init_RM_fit(self):
         global fit_RM_archive
