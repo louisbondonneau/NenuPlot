@@ -23,10 +23,11 @@ class RM_fit_class(DM_fit_class):
         super(RM_fit_class, self).__init__(*args, **kwargs)
         rmdelt_60mhz = 0.002
         self.rmdelt = (rmdelt_60mhz / 60**2) * (self.centre_frequency)**2
-        self.rm_window = None
-        self.ncore = 40
-        self.RM_sigma_limit = 8
+        self.rm_window = kwargs.get('rm_window', None)
+        self.ncore = kwargs.get('ncore', 40)
+        self.RM_sigma_limit = kwargs.get('RM_sigma_limit', 8)
         self.bin_sigma = 4.5
+        self.plot_QU = kwargs.get('plot_QU', False)
 
     def init_RM_fit(self):
         global fit_RM_archive
@@ -548,7 +549,15 @@ class RM_fit_class(DM_fit_class):
                 ax2.plot(rad, Umean, '+m--')
                 # ax2.set_rmax(2)
                 # ax2.set_rmin(0)
-                plt.show()
+                if isinstance(isub_vec, (list, np.ndarray)):
+                    plot_name = f"{os.path.basename(self.get_filename())}_{min(isub_vec)}_{max(isub_vec)}.pdf"
+                else:
+                    plot_name = f"{os.path.basename(self.get_filename())}_{str(isub_vec)}.pdf"
+                # isub_vec
+                # en python isub_vec peut etre un entier ou une liste oou un numpy array d'entiers tu dois generer une chaine de caractere avec l'entier min "_" l'entier max, ou simplement l'entier si c''est pas une liste ou un array
+                # os.path.basename(self.get_filename())
+                # plt.show()
+                plt.savefig(plot_name, format='pdf')
 
             Q_residual[np.isnan(Q_residual)] = 0
             U_residual[np.isnan(U_residual)] = 0
@@ -603,7 +612,7 @@ class RM_fit_class(DM_fit_class):
             # QU_residual(param, freqs, max_freq=None, freqs_extended=None, isub_vec=None, ibin_vec=None, coh_rm=None):
             out = minimize(QU_residual, fit_params, args=(self.freqs,),
                            kws={'max_freq': max_freq, 'freqs_extended': self.freqs_extended,
-                                'isub_vec': isub_vec, 'ibin_vec': ibin_vec, 'coh_rm': coh_rm, 'plot': None})  # , method='leastsq' 'emcee' 'brute' 'nelder'
+                                'isub_vec': isub_vec, 'ibin_vec': ibin_vec, 'coh_rm': coh_rm, 'plot': self.plot_QU})  # , method='leastsq' 'emcee' 'brute' 'nelder'
             report_fit(out, show_correl=True, modelpars=p_true)
 
             subint_doppler = int(np.floor(np.mean(isub_vec)))

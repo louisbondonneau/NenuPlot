@@ -132,6 +132,7 @@ class NenuPlot():
         self.mask_out = nenuplot_config.get_config('NENUPLOT', 'mask_out')
         self.metadata_out = nenuplot_config.get_config('NENUPLOT', 'metadata_out')
         self.RM_out = nenuplot_config.get_config('NENUPLOT', 'RM_out')
+        self.plot_QU = nenuplot_config.get_config('NENUPLOT', 'plot_QU')
         # --- UPLOAD METADATA ---
         self.upload_metadata_toggle = nenuplot_config.get_config('NENUPLOT', 'upload_metadata_toggle')
         self.upload_metadata_hostname = nenuplot_config.get_config('NENUPLOT', 'upload_metadata_hostname')
@@ -256,6 +257,10 @@ class NenuPlot():
 
         parser.add_argument('-RM_out', dest='RM_out', action='store_true', default=self.RM_out,
                             help="write a RMfile in output PATH/*.csv (default is %d)" % self.RM_out)
+
+        parser.add_argument('-plot_QU', dest='plot_QU', action='store_true', default=self.plot_QU,
+                            help="plot QU fit diagram (default is %d)" % self.plot_QU)
+
         parser.add_argument('-noRM_out', dest='RM_out', action='store_false', default=self.RM_out)
 
         parser.add_argument('-mask_out', dest='mask_out', action='store_true', default=self.mask_out,
@@ -396,26 +401,39 @@ class NenuPlot():
         #                                   singlepulses_patch=self.args.singlepulses_patch,
         #                                   defaraday=self.args.defaraday)
 
+        # Common kwargs for all classes
+        common_kwargs = {
+            'ar_name': self.args.INPUT_ARCHIVE,
+            'verbose': self.args.verbose,
+            'log_obj': self.log,
+            'minfreq': self.args.minfreq,
+            'maxfreq': self.args.maxfreq,
+            'mintime': self.args.mintime,
+            'maxtime': self.args.maxtime,
+            'bscrunch': int(self.args.bscrunch),
+            'tscrunch': int(self.args.tscrunch),
+            'fscrunch': int(self.args.fscrunch),
+            'pscrunch': self.args.pscrunch,
+            'dm': self.args.dm,
+            'rm': self.args.rm,
+            'singlepulses_patch': self.args.singlepulses_patch,
+            'defaraday': False,
+        }
+
         if (self.args.fit_RM) or (self.args.RM_input):
             from NenuPlot_module import RM_fit_class as psrchive_class
+            specific_kwargs = {
+                'plot_QU': self.args.plot_QU,  # Add other specific kwargs if needed
+                'rm_window': self.args.fit_RM_window,
+            }
         elif (self.args.fit_DM):
             from NenuPlot_module import DM_fit_class as psrchive_class
+            specific_kwargs = {}
         else:
             from NenuPlot_module import psrchive_class
+            specific_kwargs = {}
 
-        self.ar = psrchive_class(ar_name=self.args.INPUT_ARCHIVE, verbose=self.args.verbose, log_obj=self.log,
-                                 minfreq=self.args.minfreq,
-                                 maxfreq=self.args.maxfreq,
-                                 mintime=self.args.mintime,
-                                 maxtime=self.args.maxtime,
-                                 bscrunch=int(self.args.bscrunch),
-                                 tscrunch=int(self.args.tscrunch),
-                                 fscrunch=int(self.args.fscrunch),
-                                 pscrunch=self.args.pscrunch,
-                                 dm=self.args.dm,
-                                 rm=self.args.rm,
-                                 singlepulses_patch=self.args.singlepulses_patch,
-                                 defaraday=False)  # self.args.defaraday)
+        self.ar = psrchive_class(**common_kwargs, **specific_kwargs)
 
         if not (self.args.name):
             self.args.name = self.ar.name
@@ -472,8 +490,8 @@ class NenuPlot():
         if (self.ar.get_nchan() >= 10) and (self.args.fit_RM):
             if(self.args.verbose):
                 self.log.log("Nenuplot: RM_fit start", objet='NenuPlot')
-            if(self.args.fit_RM_window):
-                self.ar.rm_window = self.args.fit_RM_window
+            #if(self.args.fit_RM_window):
+            #    self.ar.rm_window = self.args.fit_RM_window
             self.ar.init_RM_fit()
             self.ar.RM_reduction(only_bestbin=False, sum_stokes_bin=False, QU_fit=True)
             self.ar.RM_refining(sum_stokes_bin=True)
