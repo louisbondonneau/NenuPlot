@@ -614,7 +614,7 @@ class RM_fit_class(DM_fit_class):
             # QU_residual(param, freqs, max_freq=None, freqs_extended=None, isub_vec=None, ibin_vec=None, coh_rm=None):
             out = minimize(QU_residual, fit_params, args=(self.freqs,),
                            kws={'max_freq': max_freq, 'freqs_extended': self.freqs_extended,
-                                'isub_vec': isub_vec, 'ibin_vec': ibin_vec, 'coh_rm': coh_rm, 'plot': self.plot_QU})  # , method='leastsq' 'emcee' 'brute' 'nelder'
+                                'isub_vec': isub_vec, 'ibin_vec': ibin_vec, 'coh_rm': coh_rm, 'plot': False})  # , method='leastsq' 'emcee' 'brute' 'nelder'
             report_fit(out, show_correl=True, modelpars=p_true)
 
             subint_doppler = int(np.floor(np.mean(isub_vec)))
@@ -622,8 +622,8 @@ class RM_fit_class(DM_fit_class):
             self.scrunch_subint_RM_refining_err[isub_scrunched] = out.params['RM'].stderr
             self.scrunch_subint_phase_refining[isub_scrunched] = out.params['rotation'].value
             self.scrunch_subint_phase_refining_err[isub_scrunched] = out.params['rotation'].stderr
-            # QU_residual(out.params, self.freqs, max_freq=max_freq, freqs_extended=self.freqs_extended,
-            #             isub_vec=isub_vec, ibin_vec=ibin_vec, coh_rm=coh_rm, plot=True)
+            QU_residual(out.params, self.freqs, max_freq=max_freq, freqs_extended=self.freqs_extended,
+                        isub_vec=isub_vec, ibin_vec=ibin_vec, coh_rm=coh_rm, plot=self.plot_QU)
         self.absolute_phase_flag = True
 
     def apply_rotation(self, Q, U, rot):
