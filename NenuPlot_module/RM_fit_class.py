@@ -878,6 +878,8 @@ def RMspectrum(Q_tmp, U_tmp, RM_vec, centre_frequency, freqs, n=None):
     norm = np.sqrt((Q_tmp**2 + U_tmp**2) / 2)
     Q_tmp /= norm
     U_tmp /= norm
+    Q_tmp = np.nan_to_num(Q_tmp, nan=0.0)
+    U_tmp = np.nan_to_num(U_tmp, nan=0.0)
     for i in range(len(RM_vec)):
         rmfac = RM_vec[i] * 89875.51787368176
         rot = (rmfac * ((centre_frequency**-2) - (freqs**-2)))
