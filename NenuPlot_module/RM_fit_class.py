@@ -878,6 +878,7 @@ def RMspectrum(Q_tmp, U_tmp, RM_vec, centre_frequency, freqs, n=None):
     norm = np.sqrt((Q_tmp**2 + U_tmp**2) / 2)
     Q_tmp /= norm
     U_tmp /= norm
+    sqrt_2 = np.sqrt(2)
     Q_tmp = np.where(np.isnan(Q_tmp), np.random.uniform(-sqrt_2, sqrt_2, size=Q_tmp.shape), Q_tmp)
     U_tmp = np.where(np.isnan(U_tmp), np.random.uniform(-sqrt_2, sqrt_2, size=U_tmp.shape), U_tmp)
     for i in range(len(RM_vec)):
