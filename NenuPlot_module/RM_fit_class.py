@@ -9,6 +9,8 @@ import numpy as np
 import warnings
 import csv
 import matplotlib.pyplot as plt
+from scipy.fft import fft
+
 from multiprocessing import Pool
 from .methode_class import smoothGaussian
 from .methode_class import mad
