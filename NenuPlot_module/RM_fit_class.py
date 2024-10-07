@@ -871,26 +871,24 @@ class RM_fit_class(DM_fit_class):
 #     else:
 #         return (spectrum, sigma, n)
 
-# Nouvelle fonction RMspectrum utilisant la méthode sans cutoff-freq
 def RMspectrum(Q_tmp, U_tmp, RM_vec, centre_frequency, freqs, n=None):
-    spectrum = []
-    for rm in RM_vec:
-        rmfac = rm * 89875.51787368176
-        # Calcul de la fréquence instantanée pour chaque RM
-        instantaneous_frequency_estime = rmfac * centre_frequency * freqs**-2
-        # Calcul de la phase correspondante
-        phase_estime = 2 * np.pi * np.cumsum(instantaneous_frequency_estime) * (freqs[1] - freqs[0])
-        # Génération du signal estimé
-        signal_estime = np.exp(1j * phase_estime)
-        # Calcul de la projection (produit scalaire) du signal bruité sur le signal estimé
-        projection = np.sum((Q_tmp + 1j * U_tmp) * np.conj(signal_estime))
-        spectrum.append(np.abs(projection))
-    spectrum = np.array(spectrum)
+    spectrum = np.zeros((np.size(RM_vec)))
+    norm = np.sqrt((Q_tmp**2 + U_tmp**2) / 2)
+    Q_tmp /= norm
+    U_tmp /= norm
+    for i in range(len(RM_vec)):
+        rmfac = RM_vec[i] * 89875.51787368176
+        rot = (rmfac * ((centre_frequency**-2) - (freqs**-2)))
+        Q_new = Q_tmp * np.cos(2 * rot) - U_tmp * np.sin(2 * rot)
+        U_new = Q_tmp * np.sin(2 * rot) + U_tmp * np.cos(2 * rot)
+        spectrum[i] = np.sum(np.abs(fft(Q_new + 1j*U_new)))
+    # best_RM = RM_vec[np.nanargmax(spectrum)]
     sigma = np.nanmax(spectrum) / mad(spectrum)
     if (np.isnan(sigma)):
         print("MAD=", mad(spectrum))
         print("MAX=", np.nanmax(spectrum))
         print("spectrum=", spectrum)
+    del Q_new, U_new, Q_tmp, U_tmp, norm, rot, centre_frequency, freqs
     if n is None:
         return (spectrum, sigma)
     else:
