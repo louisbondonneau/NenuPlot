@@ -159,19 +159,26 @@ class RM_fit_class(DM_fit_class):
 
     def get_intence_bins(self, isub=None, rebuild_local_scrunch=True, sigma=3, only_bestbin=False):
         self.set_onpulse(rebuild_local_scrunch=rebuild_local_scrunch)
-        if(isub is None):
+
+        if isub is None:
             prof = self.scrunch.get_Profile(0, 0, 0).get_amps() * 10000
-        if (len(isub) <= 1):
-            if(isinstance(isub, list)):
-                prof = self.data[int(isub[0]), 0, :, :]
-            else:
-                prof = self.data[int(isub), 0, :, :]
-            prof = np.nanmean(prof, axis=0)
         else:
-            prof = self.data[isub, 0, :, :]
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore", category=RuntimeWarning)
-                prof = np.nanmean(np.nanmean(prof, axis=0), axis=0)
+            # Convert isub to a list if it's a range or other iterable
+            if isinstance(isub, (range, list, tuple, np.ndarray)):
+                isub_list = list(isub)
+                if len(isub_list) == 1:
+                    prof = self.data[isub_list[0], 0, :, :]
+                    prof = np.nanmean(prof, axis=0)
+                else:
+                    prof = self.data[isub_list, 0, :, :]
+                    with warnings.catch_warnings():
+                        warnings.simplefilter("ignore", category=RuntimeWarning)
+                        prof = np.nanmean(np.nanmean(prof, axis=0), axis=0)
+            else:
+                # isub is assumed to be an integer index
+                prof = self.data[int(isub), 0, :, :]
+                prof = np.nanmean(prof, axis=0)
+
         median = np.median(prof[self.offbins])
         rms = np.std(prof[self.offbins])
         prof_norm = (prof - median) / rms
