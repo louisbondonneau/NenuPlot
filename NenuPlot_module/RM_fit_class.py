@@ -887,6 +887,9 @@ def RMspectrum(Q_tmp, U_tmp, RM_vec, centre_frequency, freqs, n=None):
         Q_new = Q_tmp * np.cos(2 * rot) - U_tmp * np.sin(2 * rot)
         U_new = Q_tmp * np.sin(2 * rot) + U_tmp * np.cos(2 * rot)
         spectrum[i] = np.sum(np.abs(fft(Q_new + 1j*U_new)))
+    spectrum -= np.median(spectrum)
+    spectrum = np.abs(spectrum)
+    spectrum /= np.max(spectrum)
     # best_RM = RM_vec[np.nanargmax(spectrum)]
     sigma = np.nanmax(spectrum) / mad(spectrum)
     if (np.isnan(sigma)):
