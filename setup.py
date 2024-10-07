@@ -1,8 +1,10 @@
 from setuptools import setup, find_packages
+import pkg_resources
+
 
 setup(
     name='NenuPlot',
-    version='4.0.1',
+    version=pkg_resources.get_distribution("NenuPlot").version,
     python_requires='>=2.7',
     description='NenuPlot is a tool designed to assist in the visualization and analysis of PSRFITS folded files. It provides a quick-look generation in PDF and PNG formats and offers numerous options for data handling, including cleaning, rebinding, RM and DM fitting, and data extraction within specified frequency and time ranges.',
     author='Louis Bondonneau',

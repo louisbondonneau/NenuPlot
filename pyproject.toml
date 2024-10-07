@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "NenuPlot"
+version = "4.0.2"
+description = """
+NenuPlot est un outil conçu pour faciliter la visualisation et l'analyse des fichiers PSRFITS pliés. 
+Il fournit une génération d'aperçus rapides aux formats PDF et PNG et offre de nombreuses options pour 
+le traitement des données, y compris le nettoyage, le rebinning, l'ajustement RM et DM, 
+et l'extraction de données dans des plages de fréquences et de temps spécifiées.
+"""
+requires-python = ">=2.7"
+dependencies = [
+    "numpy",
+    "astropy",
+    "matplotlib"
+]
+authors = [
+    { name = "Louis Bondonneau", email = "louis.bondonneau@obs-nancay.fr" },
+]
+
+[tool.setuptools]
+packages = { find = {} }
+scripts = ["scripts/NenuPlot.py"]
+
+[tool.setuptools.package-data]
+NenuPlot_module = ["NenuPlot.conf"]
