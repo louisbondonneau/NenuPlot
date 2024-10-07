@@ -20,7 +20,10 @@ dependencies = [
 authors = [
     { name = "Louis Bondonneau", email = "louis.bondonneau@obs-nancay.fr" }
 ]
-scripts = { NenuPlot = "scripts/NenuPlot.py" }  # Déplacez les scripts ici
+
+# Définition de l'entrée de script pour le projet
+[project.entry-points.scripts]
+NenuPlot = "scripts.NenuPlot:main"
 
 [tool.setuptools]
 packages = { find = {} }
