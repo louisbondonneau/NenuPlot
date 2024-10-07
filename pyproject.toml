@@ -18,12 +18,12 @@ dependencies = [
     "matplotlib"
 ]
 authors = [
-    { name = "Louis Bondonneau", email = "louis.bondonneau@obs-nancay.fr" },
+    { name = "Louis Bondonneau", email = "louis.bondonneau@obs-nancay.fr" }
 ]
+scripts = { NenuPlot = "scripts/NenuPlot.py" }  # Déplacez les scripts ici
 
 [tool.setuptools]
 packages = { find = {} }
-scripts = ["scripts/NenuPlot.py"]
 
 [tool.setuptools.package-data]
 NenuPlot_module = ["NenuPlot.conf"]
