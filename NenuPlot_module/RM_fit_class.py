@@ -875,7 +875,7 @@ class RM_fit_class(DM_fit_class):
 def RMspectrum(Q_tmp, U_tmp, RM_vec, centre_frequency, freqs, n=None):
     spectrum = []
     for rm in RM_vec:
-        rmfac = rm[i] * 89875.51787368176
+        rmfac = rm * 89875.51787368176
         # Calcul de la fréquence instantanée pour chaque RM
         instantaneous_frequency_estime = rmfac * centre_frequency * freqs**-2
         # Calcul de la phase correspondante
