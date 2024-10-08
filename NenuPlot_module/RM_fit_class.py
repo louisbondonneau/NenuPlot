@@ -894,7 +894,7 @@ def RMspectrum(Q_tmp, U_tmp, RM_vec, centre_frequency, freqs, n=None, fft_spectr
         else:
             spectrum[i] = np.sqrt(np.nansum(Q_new)**2 + np.nansum(U_new)**2)
 
-    spectrum -= np.min(spectrum)
+    spectrum -= np.median(spectrum)
     spectrum = np.abs(spectrum)
     spectrum /= np.max(spectrum)
     # best_RM = RM_vec[np.nanargmax(spectrum)]
