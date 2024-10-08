@@ -881,9 +881,10 @@ def RMspectrum(Q_tmp, U_tmp, RM_vec, centre_frequency, freqs, n=None, fft_spectr
     norm = np.sqrt((Q_tmp**2 + U_tmp**2) / 2)
     Q_tmp /= norm
     U_tmp /= norm
-    sqrt_2 = np.sqrt(2)
-    Q_tmp = np.where(np.isnan(Q_tmp), np.random.uniform(-sqrt_2, sqrt_2, size=Q_tmp.shape), Q_tmp)
-    U_tmp = np.where(np.isnan(U_tmp), np.random.uniform(-sqrt_2, sqrt_2, size=U_tmp.shape), U_tmp)
+    if fft_spectrum:
+        sqrt_2 = np.sqrt(2)
+        Q_tmp = np.where(np.isnan(Q_tmp), np.random.uniform(-sqrt_2, sqrt_2, size=Q_tmp.shape), Q_tmp)
+        U_tmp = np.where(np.isnan(U_tmp), np.random.uniform(-sqrt_2, sqrt_2, size=U_tmp.shape), U_tmp)
     for i in range(len(RM_vec)):
         rmfac = RM_vec[i] * 89875.51787368176
         rot = (rmfac * ((centre_frequency**-2) - (freqs**-2)))
@@ -893,10 +894,11 @@ def RMspectrum(Q_tmp, U_tmp, RM_vec, centre_frequency, freqs, n=None, fft_spectr
             spectrum[i] = np.sum(np.abs(fft(Q_new + 1j*U_new)))
         else:
             spectrum[i] = np.sqrt(np.nansum(Q_new)**2 + np.nansum(U_new)**2)
-
-    spectrum -= np.median(spectrum)
-    spectrum = np.abs(spectrum)
-    spectrum /= np.max(spectrum)
+    
+    if fft_spectrum:
+        spectrum -= np.median(spectrum)
+        spectrum = np.abs(spectrum)
+        spectrum /= np.max(spectrum)
     # best_RM = RM_vec[np.nanargmax(spectrum)]
     sigma = np.nanmax(spectrum) / mad(spectrum)
     if (np.isnan(sigma)):
@@ -966,7 +968,7 @@ def multiprocessing_RM_specrum(ncore, isub_data, ibin_vec, centre_frequency, fre
         ax0.set_xlabel('RM Values')
         ax0.set_ylabel('Spectra')
 
-        if isinstance(isub_vec, (list, np.ndarray)):
+        if isinstance(isub_vec, (list, np.ndarray, range)):
             ax0.set_title(f"RM Spectrum subint {min(isub_vec)} to {max(isub_vec)}")
         else:
             ax0.set_title(f"RM Spectrum subint {str(isub_vec)}")
@@ -974,7 +976,7 @@ def multiprocessing_RM_specrum(ncore, isub_data, ibin_vec, centre_frequency, fre
         ax0.legend(loc='upper right')
 
         filename = os.path.splitext(os.path.basename(filename))[0]
-        if isinstance(isub_vec, (list, np.ndarray)):
+        if isinstance(isub_vec, (list, np.ndarray, range)):
             plot_name = f"{filename}_{min(isub_vec)}_{max(isub_vec)}_RMspectrum.pdf"
         else:
             plot_name = f"{filename}_{str(isub_vec)}_RMspectrum.pdf"
