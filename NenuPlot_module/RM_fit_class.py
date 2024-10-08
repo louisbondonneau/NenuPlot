@@ -965,7 +965,12 @@ def multiprocessing_RM_specrum(ncore, isub_data, ibin_vec, centre_frequency, fre
         ax0.plot(RM_vec, spectra, label='RM Spectrum')
         ax0.set_xlabel('RM Values')
         ax0.set_ylabel('Spectra')
-        ax0.set_title('RM Spectrum')
+
+        if isinstance(isub_vec, (list, np.ndarray)):
+            ax0.set_title(f"RM Spectrum subint {min(isub_vec)} to {max(isub_vec)}")
+        else:
+            ax0.set_title(f"RM Spectrum subint {str(isub_vec)}")
+            
         ax0.legend(loc='upper right')
 
         filename = os.path.splitext(os.path.basename(filename))[0]

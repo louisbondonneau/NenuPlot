@@ -625,16 +625,6 @@ class NenuPlot():
             plt.switch_backend('agg')
             from NenuPlot_module import PlotArchive
 
-        if (self.needplot):
-            try:
-                fig = plt.figure(figsize=eval(self.plot_figsize))
-            except RuntimeError:
-                self.log.error("You probably try to oppen the matplotlib graphical inerface (-gui) while ssh connection is not in -X mode", objet='NenuPlot')
-                exit(0)
-            plt.subplots_adjust(top=0.975, bottom=0.055,
-                                left=0.085, right=0.925,
-                                hspace=0.280, wspace=0.06)
-            matplotlib.rcParams.update({'font.size': 8})
 
         self.apply_mask()
         self.clear_archive()
@@ -654,6 +644,7 @@ class NenuPlot():
             self.metadata_SNR()
 
         self.RM_fit()
+        
         self.load_RM()
 
         self.apply_auxRM()
@@ -662,6 +653,17 @@ class NenuPlot():
 
         self.save_archive()
         self.archive_centre()
+
+        if (self.needplot):
+            try:
+                fig = plt.figure(figsize=eval(self.plot_figsize))
+            except RuntimeError:
+                self.log.error("You probably try to oppen the matplotlib graphical inerface (-gui) while ssh connection is not in -X mode", objet='NenuPlot')
+                exit(0)
+            plt.subplots_adjust(top=0.975, bottom=0.055,
+                                left=0.085, right=0.925,
+                                hspace=0.280, wspace=0.06)
+            matplotlib.rcParams.update({'font.size': 8})
 
         # ----------------metadata in ax0------------------------------
         if (self.needplot):
