@@ -32,6 +32,9 @@ class RM_fit_class(DM_fit_class):
         self.plot_RMspectrum = kwargs.get('plot_RMspectrum', False)
         if "plot_RMspectrum" in kwargs:
             kwargs.pop('plot_RMspectrum')
+        self.fft_spectrum = kwargs.get('fft_RMspectrum', False)
+        if "fft_RMspectrum" in kwargs:
+            kwargs.pop('fft_RMspectrum')
         super(RM_fit_class, self).__init__(*args, **kwargs)
         rmdelt_60mhz = 0.002
         self.rmdelt = (rmdelt_60mhz / 60**2) * (self.centre_frequency)**2
@@ -75,7 +78,7 @@ class RM_fit_class(DM_fit_class):
         self.RM_flag = False
         self.absolute_phase_flag = False
 
-    def compute_subint(self, isub, rebuild_local_scrunch=True, rm_perbin=False, only_bestbin=False, sum_stokes_bin=False):
+    def compute_subint(self, isub, rebuild_local_scrunch=True, rm_perbin=False, only_bestbin=False, sum_stokes_bin=False, fft_spectrum=False):
         ibin_vec = self.get_intence_bins(isub=isub, rebuild_local_scrunch=rebuild_local_scrunch, sigma=self.bin_sigma, only_bestbin=only_bestbin)
         if (len(ibin_vec) == 0):
             if(rm_perbin):
@@ -83,7 +86,7 @@ class RM_fit_class(DM_fit_class):
             else:
                 return (np.nan, 0)
         # print("ibin_vec = ", ibin_vec)
-        RM, RM_sigma, spectra = self.get_RMspectrum(ibin_vec, isub, rm_perbin=rm_perbin, sum_stokes_bin=sum_stokes_bin)
+        RM, RM_sigma, spectra = self.get_RMspectrum(ibin_vec, isub, rm_perbin=rm_perbin, sum_stokes_bin=sum_stokes_bin, fft_spectrum=fft_spectrum)
         if(rm_perbin):
             return (RM, RM_sigma, ibin_vec)
         else:
@@ -316,8 +319,8 @@ class RM_fit_class(DM_fit_class):
         isub1 = list(range(self.scrunch_subint_start_ind[isub_scrunched], self.scrunch_subint_stop_ind[isub_scrunched]))
         isub2 = list(range(self.scrunch_subint_start_ind[isub_scrunched + 1], self.scrunch_subint_stop_ind[isub_scrunched + 1]))
 
-        RM1, RM_sigma1 = self.compute_subint(isub1, rm_perbin=False, only_bestbin=only_bestbin, sum_stokes_bin=sum_stokes_bin)
-        RM2, RM_sigma2 = self.compute_subint(isub2, rm_perbin=False, only_bestbin=only_bestbin, sum_stokes_bin=sum_stokes_bin)
+        RM1, RM_sigma1 = self.compute_subint(isub1, rm_perbin=False, only_bestbin=only_bestbin, sum_stokes_bin=sum_stokes_bin, fft_spectrum=self.fft_spectrum)
+        RM2, RM_sigma2 = self.compute_subint(isub2, rm_perbin=False, only_bestbin=only_bestbin, sum_stokes_bin=sum_stokes_bin, fft_spectrum=self.fft_spectrum)
         self.log.log("    RM1 = %.6f sigma = %.1f" % (RM1, RM_sigma1), objet=RMFIT_OBJET)
         self.log.log("    RM2 = %.6f sigma = %.1f" % (RM2, RM_sigma2), objet=RMFIT_OBJET)
         self.scrunch_subint_RM[isub_scrunched] = RM1
@@ -332,7 +335,7 @@ class RM_fit_class(DM_fit_class):
         for isub_scrunched in range(len(self.scrunch_subint_mjd)):
             self.log.log("progress : %d/%d" % (isub_scrunched + 1, len(self.scrunch_subint_mjd)), objet=RMFIT_OBJET)
             isub = list(range(self.scrunch_subint_start_ind[isub_scrunched], self.scrunch_subint_stop_ind[isub_scrunched]))
-            RM, RM_sigma = self.compute_subint(isub, rm_perbin=False, only_bestbin=only_bestbin, sum_stokes_bin=sum_stokes_bin)
+            RM, RM_sigma = self.compute_subint(isub, rm_perbin=False, only_bestbin=only_bestbin, sum_stokes_bin=sum_stokes_bin, fft_spectrum=self.fft_spectrum)
             self.log.log("RM = %.6f sigma = %.1f duration = %.3f sec" % (RM, RM_sigma,
                                                                          self.scrunch_subint_dur[isub_scrunched]), objet=RMFIT_OBJET)
             self.scrunch_subint_RM.append(RM)
@@ -358,8 +361,8 @@ class RM_fit_class(DM_fit_class):
                     continue
                 isub1 = list(range(self.scrunch_subint_start_ind[isub_scrunched], self.scrunch_subint_stop_ind[isub_scrunched]))
                 isub2 = list(range(self.scrunch_subint_start_ind[isub_scrunched + 1], self.scrunch_subint_stop_ind[isub_scrunched + 1]))
-                RM1, RM_sigma1 = self.compute_subint(isub1, rm_perbin=False, only_bestbin=only_bestbin, sum_stokes_bin=sum_stokes_bin)
-                RM2, RM_sigma2 = self.compute_subint(isub2, rm_perbin=False, only_bestbin=only_bestbin, sum_stokes_bin=sum_stokes_bin)
+                RM1, RM_sigma1 = self.compute_subint(isub1, rm_perbin=False, only_bestbin=only_bestbin, sum_stokes_bin=sum_stokes_bin, fft_spectrum=self.fft_spectrum)
+                RM2, RM_sigma2 = self.compute_subint(isub2, rm_perbin=False, only_bestbin=only_bestbin, sum_stokes_bin=sum_stokes_bin, fft_spectrum=self.fft_spectrum)
                 print("EXPAND!!! ")
                 self.log.log("    RM1 = %.6f sigma = %.1f" % (RM1, RM_sigma1), objet=RMFIT_OBJET)
                 self.log.log("    RM2 = %.6f sigma = %.1f" % (RM2, RM_sigma2), objet=RMFIT_OBJET)
@@ -376,7 +379,7 @@ class RM_fit_class(DM_fit_class):
                     self.scrunch_subint_sigma[isub_scrunched] = RM_sigma1
                     self.unexpand_integration(isub_scrunched + 1)
                     isub = range(self.scrunch_subint_start_ind[isub_scrunched + 1], self.scrunch_subint_stop_ind[isub_scrunched + 1])
-                    RM, RM_sigma = self.compute_subint(isub, rm_perbin=False, only_bestbin=only_bestbin, sum_stokes_bin=sum_stokes_bin)
+                    RM, RM_sigma = self.compute_subint(isub, rm_perbin=False, only_bestbin=only_bestbin, sum_stokes_bin=sum_stokes_bin, fft_spectrum=self.fft_spectrum)
                     self.scrunch_subint_RM[isub_scrunched + 1] = RM
                     self.scrunch_subint_sigma[isub_scrunched + 1] = RM_sigma
                     if(RM_sigma1 > self.RM_sigma_limit):
@@ -398,7 +401,7 @@ class RM_fit_class(DM_fit_class):
                     RM2, RM_sigma2 = self.scrunch_subint_RM[isub_scrunched + 1], self.scrunch_subint_sigma[isub_scrunched + 1]
                     self.unexpand_integration(isub_scrunched)
                     isub = range(self.scrunch_subint_start_ind[isub_scrunched], self.scrunch_subint_stop_ind[isub_scrunched])
-                    RM, RM_sigma = self.compute_subint(isub, rm_perbin=False, only_bestbin=only_bestbin, sum_stokes_bin=sum_stokes_bin)
+                    RM, RM_sigma = self.compute_subint(isub, rm_perbin=False, only_bestbin=only_bestbin, sum_stokes_bin=sum_stokes_bin, fft_spectrum=self.fft_spectrum)
                     self.log.log("RM = %.6f sigma = %.1f duration = %.3f sec" % (RM, RM_sigma,
                                                                                  self.scrunch_subint_dur[isub_scrunched]), objet=RMFIT_OBJET)
                     if(RM_sigma < self.RM_sigma_limit) and (RM_sigma2 > self.RM_sigma_limit):
@@ -711,7 +714,7 @@ class RM_fit_class(DM_fit_class):
         U /= norm
         return Q, U
 
-    def get_RMspectrum(self, ibin_vec, isub_vec, rm_perbin=False, sum_stokes_bin=False):
+    def get_RMspectrum(self, ibin_vec, isub_vec, rm_perbin=False, sum_stokes_bin=False, fft_spectrum=False):
 
         # isub_data = self.get_isub_data(isub_vec)
         if (isinstance(isub_vec, list)) and (len(isub_vec) == 1):
@@ -741,10 +744,10 @@ class RM_fit_class(DM_fit_class):
 
         if(rm_perbin):
             best_RM, RM_sigma, spectra = multiprocessing_RM_specrum_perbin(self.ncore, isub_data, ibin_vec, self.centre_frequency,
-                                                                           self.freqs, self.RM_vec, self.get_doppler(subint=subint_doppler), MP=True)
+                                                                           self.freqs, self.RM_vec, self.get_doppler(subint=subint_doppler), MP=True, fft_spectrum=fft_spectrum)
         else:
             best_RM, RM_sigma, spectra = multiprocessing_RM_specrum(self.ncore, isub_data, ibin_vec, self.centre_frequency,
-                                                                    self.freqs, self.RM_vec, self.get_doppler(subint=subint_doppler), MP=True, plot=self.plot_RMspectrum, filename=self.get_filename(), isub_vec=isub_vec)
+                                                                    self.freqs, self.RM_vec, self.get_doppler(subint=subint_doppler), MP=True, plot=self.plot_RMspectrum, filename=self.get_filename(), isub_vec=isub_vec, fft_spectrum=fft_spectrum)
         return (best_RM, RM_sigma, spectra)
 
     def set_RM_vec(self, rm):
@@ -873,7 +876,7 @@ class RM_fit_class(DM_fit_class):
 #     else:
 #         return (spectrum, sigma, n)
 
-def RMspectrum(Q_tmp, U_tmp, RM_vec, centre_frequency, freqs, n=None):
+def RMspectrum(Q_tmp, U_tmp, RM_vec, centre_frequency, freqs, n=None, fft_spectrum=False):
     spectrum = np.zeros((np.size(RM_vec)))
     norm = np.sqrt((Q_tmp**2 + U_tmp**2) / 2)
     Q_tmp /= norm
@@ -886,8 +889,12 @@ def RMspectrum(Q_tmp, U_tmp, RM_vec, centre_frequency, freqs, n=None):
         rot = (rmfac * ((centre_frequency**-2) - (freqs**-2)))
         Q_new = Q_tmp * np.cos(2 * rot) - U_tmp * np.sin(2 * rot)
         U_new = Q_tmp * np.sin(2 * rot) + U_tmp * np.cos(2 * rot)
-        spectrum[i] = np.sum(np.abs(fft(Q_new + 1j*U_new)))
-    spectrum -= np.median(spectrum)
+        if fft_spectrum:
+            spectrum[i] = np.sum(np.abs(fft(Q_new + 1j*U_new)))
+        else:
+            spectrum[i] = np.sqrt(np.nansum(Q_new)**2 + np.nansum(U_new)**2)
+
+    spectrum -= np.min(spectrum)
     spectrum = np.abs(spectrum)
     spectrum /= np.max(spectrum)
     # best_RM = RM_vec[np.nanargmax(spectrum)]
@@ -902,11 +909,11 @@ def RMspectrum(Q_tmp, U_tmp, RM_vec, centre_frequency, freqs, n=None):
     else:
         return (spectrum, sigma, n)
 
-def RMspectum_wrapper(args):
+def RMspectrum_wrapper(args):
     return RMspectrum(*args)
 
 
-def multiprocessing_RM_specrum_perbin(ncore, isub_data, ibin_vec, centre_frequency, freqs, RM_vec, doppler, MP=True):
+def multiprocessing_RM_specrum_perbin(ncore, isub_data, ibin_vec, centre_frequency, freqs, RM_vec, doppler, MP=True, fft_spectrum=False):
     ibin_spectra = np.zeros((np.size(ibin_vec), np.size(RM_vec)))
     ibin_sigma = np.zeros(np.size(ibin_vec))
     # import matplotlib.pyplot as plt
@@ -914,8 +921,8 @@ def multiprocessing_RM_specrum_perbin(ncore, isub_data, ibin_vec, centre_frequen
     RM_vec_dedoppler = RM_vec * (doppler**2)
     if (MP is True):
         pool = Pool(processes=int(ncore))
-        multiple_results = pool.imap_unordered(RMspectum_wrapper,
-                                               [(isub_data[1, :, n], isub_data[2, :, n], RM_vec_dedoppler, centre_frequency, freqs, n)
+        multiple_results = pool.imap_unordered(RMspectrum_wrapper,
+                                               [(isub_data[1, :, n], isub_data[2, :, n], RM_vec_dedoppler, centre_frequency, freqs, n, fft_spectrum)
                                                 for n in range(len(ibin_vec))])
         pool.close()
         for spectrum, sigma, n in multiple_results:
@@ -924,7 +931,7 @@ def multiprocessing_RM_specrum_perbin(ncore, isub_data, ibin_vec, centre_frequen
         del multiple_results
     else:
         for n in range(len(ibin_vec)):
-            ibin_spectra[n, :], ibin_sigma = RMspectum_wrapper((isub_data[1, :, n], isub_data[2, :, n], RM_vec_dedoppler, centre_frequency, freqs))
+            ibin_spectra[n, :], ibin_sigma = RMspectrum_wrapper((isub_data[1, :, n], isub_data[2, :, n], RM_vec_dedoppler, centre_frequency, freqs, None, fft_spectrum))
             ibin_spectra[n, :] *= ibin_sigma
 
             # plt.plot(RM_vec, ibin_spectra[n, :])
@@ -936,9 +943,9 @@ def multiprocessing_RM_specrum_perbin(ncore, isub_data, ibin_vec, centre_frequen
     return (best_RM, RMsigma, ibin_spectra)
 
 
-def multiprocessing_RM_specrum(ncore, isub_data, ibin_vec, centre_frequency, freqs, RM_vec, doppler, MP=True, plot=False, filename=None, isub_vec=None):
+def multiprocessing_RM_specrum(ncore, isub_data, ibin_vec, centre_frequency, freqs, RM_vec, doppler, MP=True, plot=False, filename=None, isub_vec=None, fft_spectrum=False):
     best_RM, RMsigma, ibin_spectra = multiprocessing_RM_specrum_perbin(ncore=ncore, isub_data=isub_data, ibin_vec=ibin_vec,
-                                                                       centre_frequency=centre_frequency, freqs=freqs, RM_vec=RM_vec, doppler=doppler, MP=MP)
+                                                                       centre_frequency=centre_frequency, freqs=freqs, RM_vec=RM_vec, doppler=doppler, MP=MP, fft_spectrum=fft_spectrum)
     spectra = np.nansum(ibin_spectra, axis=0)
     best_RM = RM_vec[np.nanargmax(spectra)]
     with warnings.catch_warnings():

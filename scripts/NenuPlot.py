@@ -134,6 +134,7 @@ class NenuPlot():
         self.RM_out = nenuplot_config.get_config('NENUPLOT', 'RM_out')
         self.plot_QU = nenuplot_config.get_config('NENUPLOT', 'plot_QU')
         self.plot_RMspectrum = nenuplot_config.get_config('NENUPLOT', 'plot_RMspectrum')
+        self.fft_RMspectrum = nenuplot_config.get_config('NENUPLOT', 'fft_RMspectrum')
         # --- UPLOAD METADATA ---
         self.upload_metadata_toggle = nenuplot_config.get_config('NENUPLOT', 'upload_metadata_toggle')
         self.upload_metadata_hostname = nenuplot_config.get_config('NENUPLOT', 'upload_metadata_hostname')
@@ -264,6 +265,9 @@ class NenuPlot():
 
         parser.add_argument('-plot_RMspectrum', dest='plot_RMspectrum', action='store_true', default=self.plot_RMspectrum,
                             help="plot RMspectrum (default is %d)" % self.plot_RMspectrum)
+
+        parser.add_argument('-fft_RMspectrum', dest='fft_RMspectrum', action='store_true', default=self.fft_RMspectrum,
+                            help="fft RMspectrum (default is %d)" % self.fft_RMspectrum)
 
                             
 
@@ -431,6 +435,7 @@ class NenuPlot():
             specific_kwargs = {
                 'plot_QU': self.args.plot_QU,  # Add other specific kwargs if needed
                 'plot_RMspectrum': self.args.plot_RMspectrum,
+                'fft_RMspectrum': self.args.fft_RMspectrum,
                 'rm_window': self.args.fit_RM_window,
             }
         elif (self.args.fit_DM):
