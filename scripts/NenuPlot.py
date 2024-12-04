@@ -548,13 +548,15 @@ class NenuPlot():
                     self.ar.set_rotation_measure(0)  # otherwise it is summed with auxRM
                     self.log.log("Nenuplot: unload tmp archive to " + self.args.path + self.args.name + '.tmp', objet='NenuPlot')
                     self.ar.unload(out_name_tmp)
-                    cmd = "psredit -c int:ext=+aux -c int:aux:rm=%f  -m %s" % (np.nanmean(self.ar.interp_RM_refining), out_name_tmp)
+                    if (self.args.fit_RM):
+                        cmd = "psredit -c int:ext=+aux -c int:aux:rm=%f  -m %s" % (np.nanmean(self.ar.interp_RM_refining), out_name_tmp)
+                    else:
+                        cmd = "psredit -c int:ext=+aux -c int:aux:rm=%f  -m %s" % (np.nanmean(self.ar.RM_file_interp), out_name_tmp)
                     self.log.log("psredit cmd: %s" % cmd)
                     output = check_output(cmd, shell=True).decode("utf-8")
                     cmd = 'psredit'
                     for isub in range(self.ar.get_nsubint()):
                         if (self.args.fit_RM):
-                            print("ICCIII: ",self.args.fit_RM)
                             cmd = cmd + " -c int[%d]:aux:rm=%f" % (isub, self.ar.interp_RM_refining[isub])
                         else:  # (self.args.RM_input)
                             cmd = cmd + " -c int[%d]:aux:rm=%f" % (isub, self.ar.RM_file_interp[isub])
