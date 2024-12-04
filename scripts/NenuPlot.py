@@ -554,6 +554,7 @@ class NenuPlot():
                     cmd = 'psredit'
                     for isub in range(self.ar.get_nsubint()):
                         if (self.args.fit_RM):
+                            print("ICCIII: ",self.args.fit_RM)
                             cmd = cmd + " -c int[%d]:aux:rm=%f" % (isub, self.ar.interp_RM_refining[isub])
                         else:  # (self.args.RM_input)
                             cmd = cmd + " -c int[%d]:aux:rm=%f" % (isub, self.ar.RM_file_interp[isub])
@@ -576,8 +577,7 @@ class NenuPlot():
             self.log.log("Nenuplot: extract metadata", objet='NenuPlot')
         self.metadata.select_archive(self.ar)
         try:
-            pass
-            # self.metadata.database_insert_ini(db=self.args.database)
+            self.metadata.database_insert_ini(db=self.args.database)
         except IncertException as e:
             self.log.error("Can not add this new entry to the database because of \"%s\"" % str(e.args), objet='Database')
             self.args.database = False
