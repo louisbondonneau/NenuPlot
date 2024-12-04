@@ -576,7 +576,8 @@ class NenuPlot():
             self.log.log("Nenuplot: extract metadata", objet='NenuPlot')
         self.metadata.select_archive(self.ar)
         try:
-            self.metadata.database_insert_ini(db=self.args.database)
+            pass
+            # self.metadata.database_insert_ini(db=self.args.database)
         except IncertException as e:
             self.log.error("Can not add this new entry to the database because of \"%s\"" % str(e.args), objet='Database')
             self.args.database = False
