@@ -83,14 +83,15 @@ class NenuPlot():
         self.default_config_file = config_file  
         self.log = Log_class(logname=logname, verbose=verbose)
         # 1) Parse des arguments. On n'a pas encore lu le config_file.
+        self.__init_configuration()
         self.args_parser()
         # 2) Si l'utilisateur a fourni --config_file, on surcharge le fichier de config.
         if self.args.config_file is not None:
             self.config_file = self.args.config_file
+            self.__init_configuration()
         else:
             self.config_file = self.default_config_file
         # 3) On charge maintenant la configuration effective.
-        self.__init_configuration()
         self.methode = Methode(log_obj=self.log)
         self.metadata = Metadata(verbose=self.args.verbose, log_obj=self.log)
         self.useful_RM = False
