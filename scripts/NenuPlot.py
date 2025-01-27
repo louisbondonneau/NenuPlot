@@ -185,7 +185,7 @@ class NenuPlot():
         parser.add_argument('--config_file', '-c',
                             dest='config_file',
                             default=None,
-                            help="Chemin d'un fichier de configuration alternatif (par défaut: NenuPlot_module.__path__[0]/NenuPlot.conf).")
+                            help="Path for a personal configuration_file (default is: %s)" % NenuPlot_module.__path__[0] + "/NenuPlot.conf")
         parser.add_argument('-u', dest='path',
                             help="output path (default current directory)", default=self.output_dir)
         parser.add_argument('-o', dest='name',
