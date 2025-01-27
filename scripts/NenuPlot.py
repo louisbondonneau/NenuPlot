@@ -80,7 +80,7 @@ CONFIG_FILE_DEFAULT = NenuPlot_module.__path__[0] + '/NenuPlot.conf'
 
 class NenuPlot():
     def __init__(self, logname='Nenuplot', config_file=CONFIG_FILE_DEFAULT, verbose=False):
-        self.default_config_file = config_file  
+        self.config_file = config_file  
         self.log = Log_class(logname=logname, verbose=verbose)
         # 1) Parse des arguments. On n'a pas encore lu le config_file.
         self.__init_configuration()
@@ -89,8 +89,6 @@ class NenuPlot():
         if self.args.config_file is not None:
             self.config_file = self.args.config_file
             self.__init_configuration()
-        else:
-            self.config_file = self.default_config_file
         # 3) On charge maintenant la configuration effective.
         self.methode = Methode(log_obj=self.log)
         self.metadata = Metadata(verbose=self.args.verbose, log_obj=self.log)
