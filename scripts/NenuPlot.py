@@ -75,15 +75,22 @@ BUG know:
     - some time RA and DEC values can be 0 -> wrong elevation
 """
 
-CONFIG_FILE = NenuPlot_module.__path__[0] + '/NenuPlot.conf'
+CONFIG_FILE_DEFAULT = NenuPlot_module.__path__[0] + '/NenuPlot.conf'
 
 
 class NenuPlot():
-    def __init__(self, logname='Nenuplot', config_file=CONFIG_FILE, verbose=False):
-        self.config_file = config_file
+    def __init__(self, logname='Nenuplot', config_file=CONFIG_FILE_DEFAULT, verbose=False):
+        self.default_config_file = config_file  
         self.log = Log_class(logname=logname, verbose=verbose)
-        self.__init_configuration()
+        # 1) Parse des arguments. On n'a pas encore lu le config_file.
         self.args_parser()
+        # 2) Si l'utilisateur a fourni --config_file, on surcharge le fichier de config.
+        if self.args.config_file is not None:
+            self.config_file = self.args.config_file
+        else:
+            self.config_file = self.default_config_file
+        # 3) On charge maintenant la configuration effective.
+        self.__init_configuration()
         self.methode = Methode(log_obj=self.log)
         self.metadata = Metadata(verbose=self.args.verbose, log_obj=self.log)
         self.useful_RM = False
@@ -175,6 +182,10 @@ class NenuPlot():
     def args_parser(self):
         parser = argparse.ArgumentParser(prog='NenuPlot', description="This code provide a quicklook in pdf/png and many option for PSRFITS folded files.",
                                          formatter_class=lambda prog: argparse.RawTextHelpFormatter(prog, width=160))
+        parser.add_argument('--config_file', '-c',
+                            dest='config_file',
+                            default=None,
+                            help="Chemin d'un fichier de configuration alternatif (par défaut: NenuPlot_module.__path__[0]/NenuPlot.conf).")
         parser.add_argument('-u', dest='path',
                             help="output path (default current directory)", default=self.output_dir)
         parser.add_argument('-o', dest='name',
